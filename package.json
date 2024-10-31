@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepare": "husky init"
+    "prepare": "husky"
   },
   "dependencies": {
     "@material-tailwind/react": "^2.1.10",
