@@ -4,11 +4,7 @@ import {  Typography } from "@material-tailwind/react";
 function App() {
 
 
-  console.log('hello sadadasd 
-    
-    
-    world');
-
+  console.log('hello sadadasd world');
   return (
     <div>
       <h1>Hola mi papa</h1>
@@ -18,7 +14,7 @@ function App() {
         onPointerEnterCapture={()=>{}}
         onPointerLeaveCapture={() => {}}
       >
-        asdasasda
+      asdasd
       </Typography>
     </div>
   );
