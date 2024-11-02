@@ -8,9 +8,9 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem('token');  // Aquí obtenemos el token
+  const token = sessionStorage.getItem('token');  
   if (token) {
-    config.headers.Authorization = `Token ${token}`;  // Agregamos el token en las cabeceras
+    config.headers.Authorization = `Token ${token}`;  
   }
   return config;
 });
