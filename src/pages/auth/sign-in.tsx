@@ -1,13 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { setUser, UserState } from "@/features/user/userSlice";
 import apiClient from "@/service/apiClient";
+import { RootState } from "@/store";
 import { User, Lock } from "lucide-react";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 export function SignIn() {
+  const dispatch = useDispatch();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const user = useSelector((state: RootState ) => state.user)
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -20,6 +25,19 @@ export function SignIn() {
 
       const token = response.headers.authorization;
       sessionStorage.setItem("token", token);
+
+      const userData: UserState = {
+        roles: response.data.roles,
+        username: response.data.username,
+        name: response.data.name,
+        lastName: response.data.lastName,
+        email: response.data.email,
+        Id: response.data.id,
+        elo: response.data.elo,
+    };
+      dispatch(setUser(userData));
+
+      console.log(user);
 
       console.log("Login successful", response.data);
     } catch (error) {
