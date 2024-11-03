@@ -1,9 +1,11 @@
 import { routes } from "../routes";
 import { Routes, Route } from "react-router-dom";
+import Layout from "./layout";
 
 export function PlayLayout() {
 
     return (
+      <Layout>
         <div className="w-full h-screen">
           <Routes>
             {routes.map(
@@ -15,6 +17,7 @@ export function PlayLayout() {
             )}
           </Routes>
         </div>
+      </Layout>
       );
 
 
