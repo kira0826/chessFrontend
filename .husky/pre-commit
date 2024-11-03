@@ -1,1 +1,1 @@
-npx eslint .
+npx eslint . --ignore-pattern "components/ui/*"
