@@ -31,7 +31,7 @@ export const routes = [
     pages: [
       {
         name: "profile main",
-        path: "/",
+        path: "/:username",
         element: <Profile />,
       },
     ],
