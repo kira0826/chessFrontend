@@ -2,6 +2,7 @@ import { SignIn } from "./pages/auth/sign-in";
 import { Home } from "./pages/home/home";
 import { Play } from "./pages/play/play";
 import { Profile } from "./pages/profile/Profile";
+import { Analysis } from "./pages";
 
 export const routes = [
   {
@@ -10,7 +11,7 @@ export const routes = [
       {
         name: "home main",
         path: "/",
-        element: <Home />,
+        element: <Home />
       },
     ],
   },
@@ -21,7 +22,7 @@ export const routes = [
       {
         name: "play main",
         path: "/",
-        element: <Play />,
+        element: <Play />
       },
     ],
   },
@@ -32,7 +33,7 @@ export const routes = [
       {
         name: "profile main",
         path: "/",
-        element: <Profile />,
+        element: <Profile />
       },
     ],
   },
@@ -42,7 +43,17 @@ export const routes = [
       {
         name: "sign in",
         path: "/sign-in",
-        element: <SignIn />,
+        element: <SignIn />
+      },
+    ],
+  },
+  {
+    layout: "analysis",
+    pages: [
+      {
+        name: "analysis main",
+        path: "/",
+        element: <Analysis/>
       },
     ],
   },
