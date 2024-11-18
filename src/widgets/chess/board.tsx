@@ -5,11 +5,15 @@ import type { Piece } from "./piece";
 import isValidMove from "@/validations/isValidMove";
 import wouldKingBeInCheck from "@/validations/isInCheck";
 import Coronation from "./coronation";
-
+import { Play } from "@/models/types";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 //---------------------- Tipos ----------------------
 
 export interface BoardProps {
   isWhite: boolean;
+  plays?: Play[];
+  currentMoveIndex: number;
+  onMoveSelect: (index: number) => void;
 }
 
 export interface Cell {
@@ -71,8 +75,9 @@ const initialBoardSetup = () => {
   return board;
 };
 
-const Board: React.FC<BoardProps> = ({ isWhite }) => {
+const Board: React.FC<BoardProps> = ({ isWhite, plays = [],   currentMoveIndex, onMoveSelect }) => {
   //---------------------- Estados ----------------------
+  const [boardHistory, setBoardHistory] = useState<(Cell | null)[][][]>([initialBoardSetup()]);
 
   const [openCoronation, setOpenCoronation] = useState<boolean>(false);
 
@@ -97,6 +102,43 @@ const Board: React.FC<BoardProps> = ({ isWhite }) => {
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
 
   //---------------------- Funciones Auxiliares ----------------------
+
+  const algebraicToCoords = (position: string): [number, number] => {
+    const col = position.charCodeAt(0) - 'a'.charCodeAt(0);
+    const row = 8 - parseInt(position[1]);
+    return [row, col];
+  };
+
+  const goToMove = (index: number) => {
+    if (index >= -1 && index < plays.length) {
+      onMoveSelect(index);
+    }
+  };
+
+  React.useEffect(() => {
+    const newBoardHistory = [initialBoardSetup()];
+    
+    plays.forEach((play, index) => {
+      const [fromRow, fromCol] = algebraicToCoords(play.origin);
+      const [toRow, toCol] = algebraicToCoords(play.destination);
+      const currentBoard = newBoardHistory[index];
+      const piece = currentBoard[fromRow][fromCol]?.piece;
+      
+      if (piece) {
+        const newBoard = performMove(
+          currentBoard,
+          piece,
+          fromRow,
+          fromCol,
+          toRow,
+          toCol
+        );
+        newBoardHistory.push(newBoard);
+      }
+    });
+    
+    setBoardHistory(newBoardHistory);
+  }, [plays]);
 
   const movePiece = (
     board: (Cell | null)[][],
@@ -359,14 +401,22 @@ const Board: React.FC<BoardProps> = ({ isWhite }) => {
     }
   };
 
-  return (
+return (
     <>
       <div className="grid grid-cols-8 grid-rows-8 w-full h-full">
-        {boardSetup.flat().map((cell, index) => {
+        {boardHistory[currentMoveIndex + 1].flat().map((cell, index) => {
           const row = Math.floor(index / 8);
           const col = index % 8;
           const isDarkCell = (row + col) % 2 === 1;
           const backgroundColor = isDarkCell ? "bg-gray-600" : "bg-gray-200";
+          
+          const isFromSquare = lastMove !== null && 
+            row === lastMove.fromRow && 
+            col === lastMove.fromCol;
+            
+          const isToSquare = lastMove !== null && 
+            row === lastMove.toRow && 
+            col === lastMove.toCol;
 
           return (
             <div
@@ -377,7 +427,7 @@ const Board: React.FC<BoardProps> = ({ isWhite }) => {
               <ChessCell
                 isSelected={false}
                 isCheck={false}
-                isPreviousMove={false}
+                isPreviousMove={isFromSquare || isToSquare}
                 isAvailableMove={false}
                 piece={cell ? cell.piece : null}
                 backgroundColor={backgroundColor}
@@ -387,6 +437,8 @@ const Board: React.FC<BoardProps> = ({ isWhite }) => {
           );
         })}
       </div>
+
+
 
       {openCoronation && (
         <Coronation
@@ -399,5 +451,4 @@ const Board: React.FC<BoardProps> = ({ isWhite }) => {
     </>
   );
 };
-
 export default Board;
