@@ -12,8 +12,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 export interface BoardProps {
   isWhite: boolean;
   plays?: Play[];
-  currentMoveIndex: number;
-  onMoveSelect: (index: number) => void;
+  currentMoveIndex?: number;
+  onMoveSelect?: (index: number) => void;
 }
 
 export interface Cell {
@@ -75,7 +75,10 @@ const initialBoardSetup = () => {
   return board;
 };
 
-const Board: React.FC<BoardProps> = ({ isWhite, plays = [],   currentMoveIndex, onMoveSelect }) => {
+const Board: React.FC<BoardProps> = ({   isWhite = false, 
+  plays = [], 
+  currentMoveIndex = -1, 
+  onMoveSelect = () => {} }) => {
   //---------------------- Estados ----------------------
   const [boardHistory, setBoardHistory] = useState<(Cell | null)[][][]>([initialBoardSetup()]);
 
@@ -404,7 +407,7 @@ const Board: React.FC<BoardProps> = ({ isWhite, plays = [],   currentMoveIndex, 
 return (
     <>
       <div className="grid grid-cols-8 grid-rows-8 w-full h-full">
-        {boardHistory[currentMoveIndex + 1].flat().map((cell, index) => {
+      {(plays.length > 0 ? boardHistory[currentMoveIndex + 1] : boardSetup).flat().map((cell, index) => {
           const row = Math.floor(index / 8);
           const col = index % 8;
           const isDarkCell = (row + col) % 2 === 1;
