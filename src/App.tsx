@@ -6,7 +6,6 @@ import { HomeLayout } from "./layout/homeLayout";
 import { AnalysisLayout } from "./layout";
 import { RecreationLayout } from "./layout/recreationLayout";
 
-
 function App() {
   return (
     <Routes>
@@ -18,6 +17,7 @@ function App() {
     <Route path="/recreation/*" element={<RecreationLayout/>} />
   </Routes>
   );
+  
 }
 
 export default App;

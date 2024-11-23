@@ -3,6 +3,8 @@ import { Routes, Route } from "react-router-dom";
 
 export function AuthLayout() {
   return (
+
+
     <div className="w-full h-screen">
       <Routes>
         {routes.map(
@@ -14,5 +16,6 @@ export function AuthLayout() {
         )}
       </Routes>
     </div>
+
   );
 }
