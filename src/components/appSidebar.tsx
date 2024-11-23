@@ -80,7 +80,7 @@ export function AppSidebar() {
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
-                        </SidebarMenu>
+                        </SidebarMenu>  
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>

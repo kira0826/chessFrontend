@@ -19,7 +19,11 @@ module.exports = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+			lightCell: "#ebecd0",
+			darkCell: "#749453",	
+
+
   		}
   	}
   },
