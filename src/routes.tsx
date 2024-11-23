@@ -4,6 +4,9 @@ import { Play } from "./pages/play/play";
 import { Recreation } from "./pages/recreation/recreation";
 import { Profile } from "./pages/profile/Profile";
 import { Analysis } from "./pages";
+import { Recreation } from "./pages";
+
+
 
 export const routes = [
   {
@@ -33,8 +36,8 @@ export const routes = [
     pages: [
       {
         name: "profile main",
-        path: "/",
-        element: <Profile />
+        path: "/:username",
+        element: <Profile />,
       },
     ],
   },
