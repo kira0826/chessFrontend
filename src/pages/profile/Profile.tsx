@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Trophy, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Link } from "react-router-dom"; // Importa el componente Link
+import { Link } from "react-router-dom";
+import apiClient from "@/service/apiClient";
+import { useSelector, useDispatch } from "react-redux";
+import { updateUser } from "@/features/user/userSlice";
+import { RootState } from "@/store";
 
 interface User {
   username: string;
@@ -19,22 +24,32 @@ interface Match {
 }
 
 export function Profile() {
-  const [user, setUser] = useState<User>({
-    username: "chessmaster",
-    email: "chessmaster@example.com",
-    name: "John",
-    lastName: "Doe",
-    elo: 2000,
-  });
-
+  const { username } = useParams<{ username: string }>();
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
   const [matches] = useState<Match[]>([
     { date: "2023-10-05", opponent: "opponent1", result: "win" },
     { date: "2023-10-03", opponent: "opponent2", result: "lose" },
     { date: "2023-10-01", opponent: "opponent3", result: "win" },
   ]);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editedUser, setEditedUser] = useState<User>(user);
+  const [editedUser, setEditedUser] = useState<User | null>(null);
+  const currentUser = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await apiClient.get(`api/users/${username}`);
+        setUser(response.data);
+        setEditedUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [username]);
 
   const handleEditClick = () => {
     setIsModalOpen(true);
@@ -46,42 +61,72 @@ export function Profile() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditedUser((prevUser) => ({ ...prevUser, [name]: value }));
+    setEditedUser((prevUser) => {
+      if (prevUser) {
+        return {
+          ...prevUser,
+          [name]: value,
+        };
+      }
+      return null;
+    });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUser(editedUser);
-    handleCloseModal();
+    try {
+      await apiClient.patch(`api/users/${username}`, editedUser);
+      setUser(editedUser);
+  
+      if (editedUser && user && currentUser.username === user.username) {
+        dispatch(updateUser({
+          ...currentUser,
+          name: editedUser.name,
+          lastName: editedUser.lastName,
+        }));
+      }
+  
+      handleCloseModal();
+      navigate(`/profile/${editedUser?.username}`);
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
   };
+
+  const canEdit = currentUser.username === user?.username || currentUser.roles.includes("ADMIN");
 
   return (
     <div className="container mx-auto p-4">
-      {/* Contenedor principal con diseño de Flexbox */}
       <div className="flex flex-col lg:flex-row lg:space-x-8">
-        {/* Perfil del Usuario - Ocupa todo el espacio disponible */}
         <Card className="flex-grow mb-4 lg:mb-0">
           <CardHeader>
             <img
-              src="https://via.placeholder.com/100" // URL de imagen quemada
+              src="https://via.placeholder.com/100"
               alt="User Avatar"
               className="w-24 h-24 rounded-full mb-4"
             />
-            <h2 className="text-2xl font-bold">{user.username}</h2>
+            <h2 className="text-2xl font-bold">{user?.username}</h2>
           </CardHeader>
           <CardContent>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Name:</strong> {user.name} {user.lastName}</p>
-            <p><strong>Elo:</strong> {user.elo}</p>
+            {user ? (
+              <>
+                <p><strong>Email:</strong> {user.email}</p>
+                <p><strong>Name:</strong> {user.name} {user.lastName}</p>
+                <p><strong>Elo:</strong> {user.elo}</p>
+              </>
+            ) : (
+              <p>Loading user data...</p>
+            )}
           </CardContent>
           <CardFooter>
-            <Button size="sm" variant="secondary" onClick={handleEditClick}>
-              Edit Profile
-            </Button>
+            {canEdit && (
+              <Button size="sm" variant="secondary" onClick={handleEditClick}>
+                Edit Profile
+              </Button>
+            )}
           </CardFooter>
         </Card>
 
-        {/* Historial de Partidas */}
         <div className="mt-8 lg:mt-0 lg:w-1/2">
           <h3 className="text-xl font-semibold mb-4">Match History</h3>
           <div className="space-y-4">
@@ -112,29 +157,17 @@ export function Profile() {
         </div>
       </div>
 
-      {/* Modal para editar perfil */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
             <h3 className="text-lg font-semibold mb-4">Edit Profile</h3>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Username:</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={editedUser.username}
-                  onChange={handleInputChange}
-                  className="border rounded w-full p-2"
-                  required
-                />
-              </div>
-              <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">Name:</label>
                 <input
                   type="text"
                   name="name"
-                  value={editedUser.name}
+                  value={editedUser?.name}
                   onChange={handleInputChange}
                   className="border rounded w-full p-2"
                   required
@@ -145,7 +178,7 @@ export function Profile() {
                 <input
                   type="text"
                   name="lastName"
-                  value={editedUser.lastName}
+                  value={editedUser?.lastName}
                   onChange={handleInputChange}
                   className="border rounded w-full p-2"
                   required

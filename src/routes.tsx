@@ -35,8 +35,8 @@ export const routes = [
     pages: [
       {
         name: "profile main",
-        path: "/",
-        element: <Profile />
+        path: "/:username",
+        element: <Profile />,
       },
     ],
   },
