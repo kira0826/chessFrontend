@@ -75,11 +75,12 @@ const initialBoardSetup = () => {
   return board;
 };
 
-const Board: React.FC<BoardProps> = ({   isWhite = false, 
-  plays = [], 
-  currentMoveIndex = -1, 
-  onMoveSelect = () => {} }) => {
+const Board: React.FC<BoardProps> = ({ isWhite = false,
+  plays = [],
+  currentMoveIndex = -1,
+  onMoveSelect = () => { } }) => {
   //---------------------- Estados ----------------------
+  const [validMoves, setValidMoves] = useState<{ row: number; col: number }[]>([]);
   const [boardHistory, setBoardHistory] = useState<(Cell | null)[][][]>([initialBoardSetup()]);
 
   const [openCoronation, setOpenCoronation] = useState<boolean>(false);
@@ -120,13 +121,13 @@ const Board: React.FC<BoardProps> = ({   isWhite = false,
 
   React.useEffect(() => {
     const newBoardHistory = [initialBoardSetup()];
-    
+
     plays.forEach((play, index) => {
       const [fromRow, fromCol] = algebraicToCoords(play.origin);
       const [toRow, toCol] = algebraicToCoords(play.destination);
       const currentBoard = newBoardHistory[index];
       const piece = currentBoard[fromRow][fromCol]?.piece;
-      
+
       if (piece) {
         const newBoard = performMove(
           currentBoard,
@@ -139,7 +140,7 @@ const Board: React.FC<BoardProps> = ({   isWhite = false,
         newBoardHistory.push(newBoard);
       }
     });
-    
+
     setBoardHistory(newBoardHistory);
   }, [plays]);
 
@@ -171,11 +172,11 @@ const Board: React.FC<BoardProps> = ({   isWhite = false,
 
     const newBoard = board.map((boardRow) => boardRow.slice());
 
-    console.log("Info del tablero en handleEnPassantCapture: "," - board: ", !board[toRow][toCol] ," - piece: ", piece.type === PieceType.PAWN ," - toCol: ", toCol !== fromCol);
+    console.log("Info del tablero en handleEnPassantCapture: ", " - board: ", !board[toRow][toCol], " - piece: ", piece.type === PieceType.PAWN, " - toCol: ", toCol !== fromCol);
     console.log("Get on board: ", board[toRow][toCol]);
-    if (      
+    if (
       piece.type === PieceType.PAWN &&
-      toCol !== fromCol 
+      toCol !== fromCol
     ) {
 
       console.log("Captura al paso adentro del if");
@@ -336,9 +337,186 @@ const Board: React.FC<BoardProps> = ({   isWhite = false,
     }
   };
 
+  const calculateValidMoves = (
+    piece: Piece,
+    fromRow: number,
+    fromCol: number,
+    board: (Cell | null)[][],
+    lastMove: LastMove | null
+  ): { row: number; col: number }[] => {
+    const validMoves: { row: number; col: number }[] = [];
+
+    const isInBoard = (row: number, col: number) => {
+      return row >= 0 && row < 8 && col >= 0 && col < 8;
+    };
+
+    const isOccupiedBySameColor = (row: number, col: number) => {
+      const targetCell = board[row][col];
+      return targetCell?.piece?.isWhite === piece.isWhite;
+    };
+
+    // Movimientos del peón
+    if (piece.type === PieceType.PAWN) {
+      const direction = piece.isWhite ? -1 : 1;
+      const startRow = piece.isWhite ? 6 : 1;
+
+      // Movimiento hacia adelante
+      if (isInBoard(fromRow + direction, fromCol) && !board[fromRow + direction][fromCol]) {
+        validMoves.push({ row: fromRow + direction, col: fromCol });
+
+        // Movimiento doble desde la posición inicial
+        if (
+          fromRow === startRow &&
+          !board[fromRow + direction * 2][fromCol]
+        ) {
+          validMoves.push({ row: fromRow + direction * 2, col: fromCol });
+        }
+      }
+
+      // Capturas diagonales
+      [-1, 1].forEach(offset => {
+        const newCol = fromCol + offset;
+        if (isInBoard(fromRow + direction, newCol)) {
+          const targetCell = board[fromRow + direction][newCol];
+          if (targetCell?.piece && targetCell.piece.isWhite !== piece.isWhite) {
+            validMoves.push({ row: fromRow + direction, col: newCol });
+          }
+        }
+      });
+
+      // Captura al paso
+      if (lastMove && lastMove.piece.type === PieceType.PAWN) {
+        const enPassantRow = piece.isWhite ? 3 : 4;
+        if (
+          fromRow === enPassantRow &&
+          Math.abs(lastMove.toCol - fromCol) === 1 &&
+          Math.abs(lastMove.fromRow - lastMove.toRow) === 2
+        ) {
+          validMoves.push({ row: fromRow + direction, col: lastMove.toCol });
+        }
+      }
+    }
+
+    // Movimientos del caballo
+    if (piece.type === PieceType.KNIGHT) {
+      const knightMoves = [
+        [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+        [1, -2], [1, 2], [2, -1], [2, 1]
+      ];
+
+      knightMoves.forEach(([rowOffset, colOffset]) => {
+        const newRow = fromRow + rowOffset;
+        const newCol = fromCol + colOffset;
+
+        if (isInBoard(newRow, newCol) && !isOccupiedBySameColor(newRow, newCol)) {
+          validMoves.push({ row: newRow, col: newCol });
+        }
+      });
+    }
+
+    // Movimientos del alfil
+    if (piece.type === PieceType.BISHOP || piece.type === PieceType.QUEEN) {
+      const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+
+      directions.forEach(([rowDir, colDir]) => {
+        let newRow = fromRow + rowDir;
+        let newCol = fromCol + colDir;
+
+        while (isInBoard(newRow, newCol)) {
+          if (board[newRow][newCol]) {
+            if (!isOccupiedBySameColor(newRow, newCol)) {
+              validMoves.push({ row: newRow, col: newCol });
+            }
+            break;
+          }
+          validMoves.push({ row: newRow, col: newCol });
+          newRow += rowDir;
+          newCol += colDir;
+        }
+      });
+    }
+
+    // Movimientos de la torre
+    if (piece.type === PieceType.ROOK || piece.type === PieceType.QUEEN) {
+      const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+      directions.forEach(([rowDir, colDir]) => {
+        let newRow = fromRow + rowDir;
+        let newCol = fromCol + colDir;
+
+        while (isInBoard(newRow, newCol)) {
+          if (board[newRow][newCol]) {
+            if (!isOccupiedBySameColor(newRow, newCol)) {
+              validMoves.push({ row: newRow, col: newCol });
+            }
+            break;
+          }
+          validMoves.push({ row: newRow, col: newCol });
+          newRow += rowDir;
+          newCol += colDir;
+        }
+      });
+    }
+
+    // Movimientos del rey
+    if (piece.type === PieceType.KING) {
+      const kingMoves = [
+        [-1, -1], [-1, 0], [-1, 1],
+        [0, -1], [0, 1],
+        [1, -1], [1, 0], [1, 1]
+      ];
+
+      kingMoves.forEach(([rowOffset, colOffset]) => {
+        const newRow = fromRow + rowOffset;
+        const newCol = fromCol + colOffset;
+
+        if (isInBoard(newRow, newCol) && !isOccupiedBySameColor(newRow, newCol)) {
+          validMoves.push({ row: newRow, col: newCol });
+        }
+      });
+
+      // Enroque
+      const isStartPosition = piece.isWhite ? fromRow === 7 : fromRow === 0;
+      if (isStartPosition && fromCol === 4 && !board[fromRow][fromCol]?.hasMoved) {
+        // Enroque corto
+        if (
+          !board[fromRow][5] &&
+          !board[fromRow][6] &&
+          board[fromRow][7]?.piece?.type === PieceType.ROOK &&
+          !board[fromRow][7]?.hasMoved
+        ) {
+          validMoves.push({ row: fromRow, col: 6 });
+        }
+        // Enroque largo
+        if (
+          !board[fromRow][3] &&
+          !board[fromRow][2] &&
+          !board[fromRow][1] &&
+          board[fromRow][0]?.piece?.type === PieceType.ROOK &&
+          !board[fromRow][0]?.hasMoved
+        ) {
+          validMoves.push({ row: fromRow, col: 2 });
+        }
+      }
+    }
+
+    // Filtrar movimientos que dejarían al rey en jaque
+    return validMoves.filter(move => {
+      const newBoard = board.map(row => [...row]);
+      newBoard[move.row][move.col] = { piece, hasMoved: true };
+      newBoard[fromRow][fromCol] = null;
+      return !wouldKingBeInCheck(newBoard, piece.isWhite);
+    });
+  };
+
   //---------------------- Manejadores ----------------------
 
   const handleDragStart = (row: number, col: number) => {
+    const piece = boardSetup[row][col]?.piece;
+    if (piece) {
+      const moves = calculateValidMoves(piece, row, col, boardSetup, lastMove);
+      setValidMoves(moves);
+    }
     setDraggedPiece({ row, col });
   };
 
@@ -401,26 +579,33 @@ const Board: React.FC<BoardProps> = ({   isWhite = false,
         console.log("Movimiento inválido");
       }
       setDraggedPiece(null);
+      setValidMoves([]);
     }
   };
 
-return (
+
+
+  return (
     <>
       <div className="grid grid-cols-8 grid-rows-8 w-full h-full">
-      {(plays.length > 0 ? boardHistory[currentMoveIndex + 1] : boardSetup).flat().map((cell, index) => {
+        {(plays.length > 0 ? boardHistory[currentMoveIndex + 1] : boardSetup).flat().map((cell, index) => {
+
           const row = Math.floor(index / 8);
           const col = index % 8;
           const isDarkCell = (row + col) % 2 === 1;
           const backgroundColor = isDarkCell ? "bg-gray-600" : "bg-gray-200";
-          
-          const isFromSquare = lastMove !== null && 
-            row === lastMove.fromRow && 
+
+          const isFromSquare = lastMove !== null &&
+            row === lastMove.fromRow &&
             col === lastMove.fromCol;
-            
-          const isToSquare = lastMove !== null && 
-            row === lastMove.toRow && 
+
+          const isToSquare = lastMove !== null &&
+            row === lastMove.toRow &&
             col === lastMove.toCol;
 
+          const isValidMove = validMoves.some(
+            move => move.row === row && move.col === col
+          );
           return (
             <div
               key={index}
@@ -431,7 +616,7 @@ return (
                 isSelected={false}
                 isCheck={false}
                 isPreviousMove={isFromSquare || isToSquare}
-                isAvailableMove={false}
+                isAvailableMove={isValidMove}
                 piece={cell ? cell.piece : null}
                 backgroundColor={backgroundColor}
                 onDragStart={() => handleDragStart(row, col)}
