@@ -1,8 +1,25 @@
+import GameModeDropdown, { GameMode } from '@/components/gameModeDropdown';
+import { useState } from 'react';
+
 export function Play() {
-    return (
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-        Play
-      </h1>
-    );
-  }
-  
+  const [selectedGameMode, setSelectedGameMode] = useState<GameMode | null>(null);
+
+  const handleGameModeSelect = (mode: GameMode | null) => {
+    setSelectedGameMode(mode);
+  };
+
+  return (
+    <div className="p-8">
+
+      <GameModeDropdown onSelect={handleGameModeSelect} />
+
+      {selectedGameMode && (
+        <div className="mt-4">
+          <p className="text-2xl font-bold">{selectedGameMode.name}</p>
+          <p className="text-2xl font-bold">{selectedGameMode.description}</p>
+
+        </div>
+      )}
+    </div>
+  );
+}
