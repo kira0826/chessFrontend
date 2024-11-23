@@ -1,6 +1,7 @@
 import { SignIn } from "./pages/auth/sign-in";
 import { Home } from "./pages/home/home";
 import { Play } from "./pages/play/play";
+import { Recreation } from "./pages/recreation/recreation";
 import { Profile } from "./pages/profile/Profile";
 import { Analysis } from "./pages";
 
@@ -54,6 +55,16 @@ export const routes = [
         name: "analysis main",
         path: "/",
         element: <Analysis/>
+      },
+    ],
+  },
+  {
+    layout: "recreation",
+    pages: [
+      {
+        name: "recreation main",
+        path: "/",
+        element: <Recreation/>
       },
     ],
   },
