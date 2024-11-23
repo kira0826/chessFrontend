@@ -1,5 +1,5 @@
 
-import { Cell } from "@/widgets";
+import { Cell } from "@/widgets/chess/types";
 import { PieceType } from "@/widgets";
 import { isSquareUnderAttack } from "./isValidKingMove";
 

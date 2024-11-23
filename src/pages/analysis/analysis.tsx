@@ -1,5 +1,4 @@
 
-import Board from "@/widgets/chess/board";
 import MatchInfo from "@/widgets/chess/matchInfo";
 
 export function Analysis() {
@@ -11,7 +10,6 @@ export function Analysis() {
 
       <MatchInfo username="AleLonber" elo={1200} profilePicture=""/>
 
-      <Board isWhite={true}/>    
 
       <MatchInfo username="Zai0826" elo={300} profilePicture=""/>
 

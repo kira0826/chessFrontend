@@ -1,4 +1,4 @@
-import { Cell } from "@/widgets";
+import { Cell } from "@/widgets/chess/types";
 import isPathClear from "./isPathClear";
 
 

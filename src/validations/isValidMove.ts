@@ -1,4 +1,6 @@
-import { PieceType, Cell, Piece, type LastMove } from "@/widgets";
+import { PieceType,  Piece } from "@/widgets";
+import { Cell } from "@/widgets/chess/types";
+import {type LastMove } from "@/widgets/chess/types";
 import isValidRookMove from "./isValidRookMove";
 import isValidKnightMove from "./isValidKnightMove";
 import isValidBishopMove from "./isValidBishop";
