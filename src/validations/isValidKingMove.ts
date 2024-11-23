@@ -1,4 +1,5 @@
-import { Piece, Cell, PieceType } from "@/widgets";
+import { Piece,  PieceType } from "@/widgets";
+import { Cell } from "@/widgets/chess/types";
 import isValidMove from "./isValidMove";
 
 function isValidKingMove(

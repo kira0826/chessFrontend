@@ -1,4 +1,5 @@
-import { Cell, type LastMove } from "@/widgets";
+
+import { Cell, LastMove } from "@/widgets/chess/types";
 import { PieceType, Piece } from "@/widgets";
 
 function isValidPawnMove(
