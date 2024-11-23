@@ -92,7 +92,7 @@ export function Play() {
     );
 
     // Manejar enroque
-    newBoard = handleCastling(newBoard, piece, fromRow, fromCol, toRow, toCol);
+    newBoard = handleCastling(newBoard, piece, fromCol, toRow, toCol);
 
     return newBoard;
   };

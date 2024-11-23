@@ -120,7 +120,6 @@ export const updateEnPassantEligibility = (
 export const handleCastling = (
   board: (Cell | null)[][],
   piece: Piece,
-  fromRow: number,
   fromCol: number,
   toRow: number,
   toCol: number
