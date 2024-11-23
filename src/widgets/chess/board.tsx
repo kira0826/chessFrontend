@@ -218,7 +218,6 @@ const Board: React.FC<BoardProps> = ({   isWhite = false,
   const handleCastling = (
     board: (Cell | null)[][],
     piece: Piece,
-    fromRow: number,
     fromCol: number,
     toRow: number,
     toCol: number
@@ -306,7 +305,7 @@ const Board: React.FC<BoardProps> = ({   isWhite = false,
     );
 
     // Manejar enroque
-    newBoard = handleCastling(newBoard, piece, fromRow, fromCol, toRow, toCol);
+    newBoard = handleCastling(newBoard, piece,  fromCol, toRow, toCol);
 
     return newBoard;
   };
