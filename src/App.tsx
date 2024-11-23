@@ -5,7 +5,6 @@ import { AuthLayout } from "./layout/authLayout";
 import { HomeLayout } from "./layout/homeLayout";
 import { RecreationLayout } from "./layout/recreationLayout";
 import { AnalysisLayout } from "./layout";
-import { RecreationLayout } from "./layout/recreationLayout";
 
 function App() {
   return (
