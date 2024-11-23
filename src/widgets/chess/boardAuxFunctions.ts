@@ -45,6 +45,23 @@ export const initialBoardSetup = () => {
   return board;
 };
 
+
+export const parsePosition = (position: string): { row: number; col: number } => {
+  const col = position.charCodeAt(0) - 'a'.charCodeAt(0);
+  const row = 8 - parseInt(position[1]);
+  return { row, col };
+};
+
+export const determinePieceColor = (moveIndex: number): boolean => {
+  // En ajedrez, blancas mueven primero, así que los movimientos pares son negras
+  // y los impares son blancas
+  return moveIndex % 2 === 0;
+};
+
+export const getPieceFromPosition = (board: (Cell | null)[][], row: number, col: number): Piece | null => {
+  return board[row][col]?.piece || null;
+};
+
 export const movePiece = (
   board: (Cell | null)[][],
   fromRow: number,

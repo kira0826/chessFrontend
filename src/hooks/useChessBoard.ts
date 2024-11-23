@@ -175,7 +175,6 @@ export function useChessBoard(): UseChessBoardReturn {
     }
   };
 
-  // Added reset board function
   const resetBoard = () => {
     setBoardSetup(initialBoardSetup());
     setLastMove(null);
@@ -191,7 +190,6 @@ export function useChessBoard(): UseChessBoardReturn {
     handleDrop,
     handlePromotion,
     setOpenCoronation,
-    // Added missing functions to the return object
     resetBoard,
     performMove,
     updateBoardState,
