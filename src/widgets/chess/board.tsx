@@ -98,11 +98,17 @@ const Board: React.FC<BoardProps> = ({ isWhite = false,
     initialBoardSetup()
   );
 
-  const [draggedPiece, setDraggedPiece] = useState<{
+  const [draggedPiecePos, setDraggedPiecePos] = useState<{
     row: number;
     col: number;
   } | null>(null);
 
+  
+  const [selectedPiece, setSelectedPiece] = useState<{
+    piece: Piece;
+    row: number;
+    col: number;
+  } | null>(null);
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
 
   //---------------------- Funciones Auxiliares ----------------------
@@ -511,122 +517,158 @@ const Board: React.FC<BoardProps> = ({ isWhite = false,
 
   //---------------------- Manejadores ----------------------
 
-  const handleDragStart = (row: number, col: number) => {
-    const piece = boardSetup[row][col]?.piece;
-    if (piece) {
-      const moves = calculateValidMoves(piece, row, col, boardSetup, lastMove);
+  const handleDragStart = (e: React.DragEvent, row: number, col: number) => {
+    const cell = boardSetup[row][col];
+    if (cell?.piece) {
+      e.dataTransfer.setData("text/plain", `${row},${col}`);
+      setDraggedPiecePos({ row, col });
+      const moves = calculateValidMoves(cell.piece, row, col, boardSetup, lastMove);
       setValidMoves(moves);
+      setSelectedPiece({ piece: cell.piece, row, col });
     }
-    setDraggedPiece({ row, col });
   };
 
-  const handleDrop = (row: number, col: number) => {
-    if (draggedPiece) {
-      const fromRow = draggedPiece.row;
-      const fromCol = draggedPiece.col;
-      const toRow = row;
-      const toCol = col;
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Necesario para permitir el drop
+  };
 
-      const piece = boardSetup[fromRow][fromCol]?.piece;
+  const handleCellClick = (row: number, col: number) => {
+    const cell = boardSetup[row][col];
 
-      if (
-        piece &&
-        isValidMove(
+    // Si ya hay una pieza seleccionada...
+    if (selectedPiece) {
+      // Si se hace clic en la misma pieza, deseleccionar
+      if (selectedPiece.row === row && selectedPiece.col === col) {
+        setSelectedPiece(null);
+        setValidMoves([]);
+        return;
+      }
+
+      // Si se hace clic en un movimiento válido, realizar el movimiento
+      if (validMoves.some(move => move.row === row && move.col === col)) {
+        handleMove(selectedPiece.row, selectedPiece.col, row, col);
+        return;
+      }
+
+      // Si se hace clic en otra pieza del mismo color, seleccionarla
+      if (cell?.piece?.isWhite === selectedPiece.piece.isWhite) {
+        const moves = calculateValidMoves(cell.piece, row, col, boardSetup, lastMove);
+        setValidMoves(moves);
+        setSelectedPiece({ piece: cell.piece, row, col });
+        return;
+      }
+    }
+
+    // Si no hay pieza seleccionada y se hace clic en una pieza
+    if (cell?.piece) {
+      const moves = calculateValidMoves(cell.piece, row, col, boardSetup, lastMove);
+      setValidMoves(moves);
+      setSelectedPiece({ piece: cell.piece, row, col });
+    }
+  };
+
+  const handleMove = (fromRow: number, fromCol: number, toRow: number, toCol: number) => {
+    const piece = boardSetup[fromRow][fromCol]?.piece;
+    
+    if (piece && isValidMove(piece, fromRow, fromCol, toRow, toCol, boardSetup, lastMove)) {
+      const newBoard = performMove(boardSetup, piece, fromRow, fromCol, toRow, toCol);
+
+      if (isKingInCheck(newBoard, piece.isWhite)) {
+        console.log("Movimiento inválido: no puedes dejar al rey en jaque");
+        return;
+      }
+
+      if (isPromotion(piece, toRow)) {
+        setOpenCoronation(true);
+        setPendingPromotion({
+          board: newBoard,
           piece,
           fromRow,
           fromCol,
           toRow,
           toCol,
-          boardSetup,
-          lastMove
-        )
-      ) {
-        // Realizar el movimiento
-        const newBoard = performMove(
-          boardSetup,
-          piece,
-          fromRow,
-          fromCol,
-          toRow,
-          toCol
-        );
-
-        // Verificar si el movimiento deja al rey en jaque
-        if (isKingInCheck(newBoard, piece.isWhite)) {
-          console.log("Movimiento inválido: no puedes dejar al rey en jaque");
-          setDraggedPiece(null);
-          return;
-        }
-
-        // Verificar promoción
-        if (isPromotion(piece, toRow)) {
-          // Abrir el modal de promoción
-          setOpenCoronation(true);
-          // Guardar la promoción pendiente
-          setPendingPromotion({
-            board: newBoard,
-            piece,
-            fromRow,
-            fromCol,
-            toRow,
-            toCol,
-          });
-        } else {
-          // Actualizar el estado del tablero
-          updateBoardState(newBoard, piece, fromRow, fromCol, toRow, toCol);
-        }
+        });
       } else {
-        console.log("Movimiento inválido");
+        updateBoardState(newBoard, piece, fromRow, fromCol, toRow, toCol);
       }
-      setDraggedPiece(null);
+
+      // Limpiar la selección después del movimiento
+      setSelectedPiece(null);
       setValidMoves([]);
     }
   };
 
 
 
+  const handleDrop = (e: React.DragEvent, targetRow: number, targetCol: number) => {
+    e.preventDefault();
+    if (draggedPiecePos) {
+      const { row: fromRow, col: fromCol } = draggedPiecePos;
+      handleMove(fromRow, fromCol, targetRow, targetCol);
+      setDraggedPiecePos(null);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedPiecePos(null);
+    if (!selectedPiece) {
+      setValidMoves([]);
+    }
+  };
+
   return (
     <>
       <div className="grid grid-cols-8 grid-rows-8 w-full h-full">
-        {(plays.length > 0 ? boardHistory[currentMoveIndex + 1] : boardSetup).flat().map((cell, index) => {
+        {(plays.length > 0 ? boardHistory[currentMoveIndex + 1] : boardSetup)
+          .flat()
+          .map((cell, index) => {
+            const row = Math.floor(index / 8);
+            const col = index % 8;
+            const isDarkCell = (row + col) % 2 === 1;
+            const backgroundColor = isDarkCell ? "bg-gray-600" : "bg-gray-200";
 
-          const row = Math.floor(index / 8);
-          const col = index % 8;
-          const isDarkCell = (row + col) % 2 === 1;
-          const backgroundColor = isDarkCell ? "bg-gray-600" : "bg-gray-200";
+            const isFromSquare =
+              lastMove !== null &&
+              row === lastMove.fromRow &&
+              col === lastMove.fromCol;
 
-          const isFromSquare = lastMove !== null &&
-            row === lastMove.fromRow &&
-            col === lastMove.fromCol;
+            const isToSquare =
+              lastMove !== null &&
+              row === lastMove.toRow &&
+              col === lastMove.toCol;
 
-          const isToSquare = lastMove !== null &&
-            row === lastMove.toRow &&
-            col === lastMove.toCol;
+            const isSelected =
+              selectedPiece !== null &&
+              row === selectedPiece.row &&
+              col === selectedPiece.col;
 
-          const isValidMove = validMoves.some(
-            move => move.row === row && move.col === col
-          );
-          return (
-            <div
-              key={index}
-              onDrop={() => handleDrop(row, col)}
-              onDragOver={(e) => e.preventDefault()}
-            >
-              <ChessCell
-                isSelected={false}
-                isCheck={false}
-                isPreviousMove={isFromSquare || isToSquare}
-                isAvailableMove={isValidMove}
-                piece={cell ? cell.piece : null}
-                backgroundColor={backgroundColor}
-                onDragStart={() => handleDragStart(row, col)}
-              />
-            </div>
-          );
-        })}
+            const isAvailableMove = validMoves.some(
+              (move) => move.row === row && move.col === col
+            );
+
+            return (
+              <div
+                key={index}
+                className="w-full h-full"
+                onClick={() => handleCellClick(row, col)}
+                draggable={cell?.piece != null}
+                onDragStart={(e) => handleDragStart(e, row, col)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, row, col)}
+                onDragEnd={handleDragEnd}
+              >
+                <ChessCell
+                  isSelected={isSelected}
+                  isCheck={false}
+                  isPreviousMove={isFromSquare || isToSquare}
+                  isAvailableMove={isAvailableMove}
+                  piece={cell ? cell.piece : null}
+                  backgroundColor={backgroundColor}
+                />
+              </div>
+            );
+          })}
       </div>
-
-
 
       {openCoronation && (
         <Coronation
