@@ -14,7 +14,7 @@ const Board: React.FC<BoardProps> = ({
         const col = index % 8;
         const isDarkCell = (row + col) % 2 === 1;
         const backgroundColor = isDarkCell ? "bg-gray-600" : "bg-gray-200";
-        const isAvailableMove = possibleMoves.some(
+        const isAvailableMove = possibleMoves && possibleMoves.some(
           (move) => move.row === row && move.col === col
         );
 

@@ -1,5 +1,4 @@
 
-import Board from "@/widgets/chess/board";
 import MatchInfo from "@/widgets/chess/matchInfo";
 import { Play } from "../../models/types";
 import { useState } from "react";

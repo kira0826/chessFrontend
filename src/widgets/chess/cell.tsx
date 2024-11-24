@@ -6,7 +6,7 @@ interface CellProps {
     isSelected: boolean;
     isCheck: boolean;
     isPreviousMove: boolean;
-    isAvailableMove: boolean;
+    isAvailableMove: boolean | null;
     piece: Piece | null; 
     backgroundColor?: string; 
     onDragStart: () => void; // Agrega el evento onDragStart
