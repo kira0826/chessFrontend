@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "/chessBack", //must define correct API URL
+  baseURL: "http://127.0.0.1:8081/", //must define correct API URL
   headers: {
     "Content-Type": "application/json",
   },
