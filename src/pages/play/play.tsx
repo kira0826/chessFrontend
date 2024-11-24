@@ -7,29 +7,34 @@ import Coronation from "@/widgets/chess/coronation";
 import { Piece } from "@/widgets";
 import { LastMove } from "@/widgets/chess/types";
 import { PieceType } from "@/widgets";
-import {
-  isKingInCheck,
-  isPromotion,
-} from "@/widgets/chess/boardAuxFunctions";
+import { isKingInCheck, isPromotion } from "@/widgets/chess/boardAuxFunctions";
 import isValidMove from "@/validations/isValidMove";
 import StompService from "@/service/webSocketService";
 import { performMove } from "./playAux";
 
 export function Play() {
-
-
+  const getWebSocketUrl = () => {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const hostname = window.location.hostname;
+    const port = window.location.port ? `:${window.location.port}` : "";
+    console.log(`${protocol}//${hostname}${port}/chessBack/ws-connect`);
+    return `${protocol}//${hostname}${port}/chessBack/ws-connect`;
+  };
   //------------------States--------------------------
 
   useEffect(() => {
     console.log("Connecting to websocket");
-    console.log("Token: ", sessionStorage.getItem("token"))
+    console.log("Token: ", sessionStorage.getItem("token"));
     const service = new StompService();
 
-    service.connect("/ws-connect-js", () => {
-      console.log("Connect using vite proxy");
-    });
+    const url = getWebSocketUrl();
+    console.log("URL for deploy: ", url);
 
-  }, [])
+    service.connect("/ws-connect-js", () => {
+      // console.log("Connect using url: ", url);
+      console.log("Connected to using proxy");
+    });
+  }, []);
 
   const [boardSetup, setBoardSetup] = useState<(Cell | null)[][]>(
     initialBoardSetup()
@@ -53,7 +58,9 @@ export function Play() {
 
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
 
-  const [possibleMoves, setPossibleMoves] = useState<{ row: number; col: number }[]>([]);
+  const [possibleMoves, setPossibleMoves] = useState<
+    { row: number; col: number }[]
+  >([]);
 
   //------------------Perform move--------------------------
 
@@ -74,7 +81,6 @@ export function Play() {
       toCol: toCol,
     });
   };
-
 
   const handlePromotion = (promotedPieceType: PieceType) => {
     if (pendingPromotion) {
@@ -100,7 +106,6 @@ export function Play() {
       setOpenCoronation(false);
     }
   };
-
 
   //------------------Board handlers on select and drop--------------------------
 
@@ -164,7 +169,6 @@ export function Play() {
     }
   };
 
-
   const calculatePossibleMoves = (row: number, col: number) => {
     const piece = boardSetup[row][col]?.piece;
     if (!piece) return [];
@@ -188,7 +192,7 @@ export function Play() {
         }
       }
     }
-    
+
     return moves;
   };
 
@@ -208,8 +212,7 @@ export function Play() {
         <MatchInfo username="Zai0826" elo={300} profilePicture="" />
       </main>
 
-      <section className="flex flex-col h-5/6 w-1/3 bg-gray-200">
-      </section>
+      <section className="flex flex-col h-5/6 w-1/3 bg-gray-200"></section>
 
       {openCoronation && (
         <Coronation

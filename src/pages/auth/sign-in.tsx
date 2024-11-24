@@ -36,7 +36,7 @@ export function SignIn() {
         email: response.data.email,
         Id: response.data.id,
         elo: response.data.elo,
-    };
+      };
       dispatch(setUser(userData));
       console.log("Login successful", response.data);
       navigate("/");
@@ -50,7 +50,11 @@ export function SignIn() {
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="">
         <header className="w-64 h-32">
-          <img src="/logo.png" alt="Full Logo" className="w-full h-full object-contain p-4" />
+          <img
+            src="/chessFront/logo.png"
+            alt="Full Logo"
+            className="w-full h-full object-contain p-4"
+          />
         </header>
 
         <main className="">
