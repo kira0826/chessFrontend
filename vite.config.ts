@@ -4,12 +4,12 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react()],
-
+  base: "/chessFront/", // Para la URL base
   server: {
     proxy: {
       "/ws-connect-js": {
-        target: "ws://localhost:8081", 
-        ws: true, 
+        target: "ws://localhost:8081",
+        ws: true,
         changeOrigin: true,
       },
     },

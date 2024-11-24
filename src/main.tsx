@@ -9,12 +9,12 @@ import { PersistGate } from "redux-persist/integration/react";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <App />
+    <BrowserRouter basename="/chessFront">
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <App />
         </PersistGate>
-        </Provider>
+      </Provider>
     </BrowserRouter>
   </StrictMode>
-);  
+);
