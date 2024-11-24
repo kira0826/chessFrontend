@@ -232,9 +232,10 @@ export function Recreation() {
           boardRepesentation={boardSetup}
           openCoronation={false}
           possibleMoves={[]}
-          handleDrop={() => { }}
-          handleDragStart={() => { }}
-        />
+          handleDrop={() => { } }
+          handleDragStart={() => { } }
+          isWhitePlayer={true} 
+          disableBoard={false}        />
 
         <MatchInfo username="Player 2" elo={1000} profilePicture="" />
       </main>
