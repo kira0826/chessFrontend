@@ -14,8 +14,9 @@ export interface Play {
 export interface BoardProps {
   boardRepesentation: (Cell | null)[][];
   openCoronation: boolean;
-  handleDrop: (row: number, col: number) => void | null;
-  handleDragStart: (row: number, col: number) => void | null;
+  handleDrop: (row: number, col: number) => void;
+  handleDragStart: (row: number, col: number) => void;
+  possibleMoves: { row: number; col: number }[];
 }
 
 export interface Cell {

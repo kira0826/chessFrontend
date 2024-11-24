@@ -1,7 +1,7 @@
 import ChessCell from "./cell";
 import { BoardProps } from "./types";
 
-const Board: React.FC<BoardProps> = ({boardRepesentation, handleDrop, handleDragStart}) => {
+const Board: React.FC<BoardProps> = ({boardRepesentation, handleDrop, handleDragStart, possibleMoves,}) => {
 
   return (
     <>
@@ -11,6 +11,9 @@ const Board: React.FC<BoardProps> = ({boardRepesentation, handleDrop, handleDrag
           const col = index % 8;
           const isDarkCell = (row + col) % 2 === 1;
           const backgroundColor = isDarkCell ? "bg-gray-600" : "bg-gray-200";
+          const isAvailableMove = possibleMoves.some(
+            (move) => move.row === row && move.col === col
+          );
 
           return (
             <div
@@ -22,7 +25,7 @@ const Board: React.FC<BoardProps> = ({boardRepesentation, handleDrop, handleDrag
                 isSelected={false}
                 isCheck={false}
                 isPreviousMove={false}
-                isAvailableMove={false}
+                isAvailableMove={isAvailableMove}
                 piece={cell ? cell.piece : null}
                 backgroundColor={backgroundColor}
                 onDragStart={() => handleDragStart(row, col)}

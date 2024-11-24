@@ -20,14 +20,14 @@ export function Play() {
 
   //------------------States--------------------------
 
-  useEffect(()=>{
-      console.log("Connecting to websocket");
-      console.log("Token: ", sessionStorage.getItem("token")) 
-      const service = new StompService();
+  useEffect(() => {
+    console.log("Connecting to websocket");
+    console.log("Token: ", sessionStorage.getItem("token"))
+    const service = new StompService();
 
-      service.connect("/ws-connect-js", () => {
-        console.log("Connect using vite proxy");
-      });
+    service.connect("/ws-connect-js", () => {
+      console.log("Connect using vite proxy");
+    });
 
   }, [])
 
@@ -53,6 +53,7 @@ export function Play() {
 
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
 
+  const [possibleMoves, setPossibleMoves] = useState<{ row: number; col: number }[]>([]);
 
   //------------------Perform move--------------------------
 
@@ -73,7 +74,6 @@ export function Play() {
       toCol: toCol,
     });
   };
-
 
 
   const handlePromotion = (promotedPieceType: PieceType) => {
@@ -106,6 +106,7 @@ export function Play() {
 
   const handleDragStart = (row: number, col: number) => {
     setDraggedPiece({ row, col });
+    setPossibleMoves(calculatePossibleMoves(row, col));
   };
 
   const handleDrop = (row: number, col: number) => {
@@ -158,8 +159,37 @@ export function Play() {
       } else {
         console.log("Movimiento inválido");
       }
+      setPossibleMoves([]);
       setDraggedPiece(null);
     }
+  };
+
+
+  const calculatePossibleMoves = (row: number, col: number) => {
+    const piece = boardSetup[row][col]?.piece;
+    if (!piece) return [];
+
+    const moves: { row: number; col: number }[] = [];
+
+    for (let toRow = 0; toRow < 8; toRow++) {
+      for (let toCol = 0; toCol < 8; toCol++) {
+        if (isValidMove(piece, row, col, toRow, toCol, boardSetup, lastMove)) {
+          const newBoard = performMove(
+            boardSetup,
+            piece,
+            row,
+            col,
+            toRow,
+            toCol
+          );
+          if (!isKingInCheck(newBoard, piece.isWhite)) {
+            moves.push({ row: toRow, col: toCol });
+          }
+        }
+      }
+    }
+    
+    return moves;
   };
 
   return (
@@ -172,6 +202,7 @@ export function Play() {
           openCoronation={openCoronation}
           handleDrop={handleDrop}
           handleDragStart={handleDragStart}
+          possibleMoves={possibleMoves}
         />
 
         <MatchInfo username="Zai0826" elo={300} profilePicture="" />
