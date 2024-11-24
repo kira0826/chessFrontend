@@ -39,9 +39,9 @@ const loggedInUser = [{ title: "Play", path: "/play", icon: Play }];
 
 const loggedInAdmin = [
   { title: "Play", path: "/play", icon: Play },
-  { title: "Users", path: "#", icon: Users },
-  { title: "Roles", path: "#", icon: ShieldAlert },
-  { title: "Permissions", path: "#", icon: Settings },
+  { title: "Users", path: "/chessBack/login", icon: Users },
+  { title: "Roles", path: "/chessBack/login", icon: ShieldAlert },
+  { title: "Permissions", path: "/chessBack/login", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -91,10 +91,19 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.path}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                    {item.title === "Users" ||
+                    item.title === "Roles" ||
+                    item.title === "Permissions" ? (
+                      <a href={item.path}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    ) : (
+                      <Link to={item.path}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
