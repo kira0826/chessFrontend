@@ -21,7 +21,7 @@ export const performMove = (
     newBoard = movePiece(newBoard, fromRow, fromCol, toRow, toCol, piece);
 
     // Manejar captura al paso
-    newBoard = handleEnPassantCapture(newBoard, piece, fromCol, toRow, toCol);
+    newBoard = handleEnPassantCapture   (newBoard, piece, fromCol, toRow, toCol);
 
     // Actualizar elegibilidad de en passant
     newBoard = updateEnPassantEligibility(
