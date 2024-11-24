@@ -1,8 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Trophy, XCircle } from "lucide-react";
+import {
+  Trophy,
+  XCircle,
+  User,
+  Mail,
+  Star,
+  Clock,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import apiClient from "@/service/apiClient";
 import { useSelector, useDispatch } from "react-redux";
@@ -77,15 +90,17 @@ export function Profile() {
     try {
       await apiClient.patch(`api/users/${username}`, editedUser);
       setUser(editedUser);
-  
+
       if (editedUser && user && currentUser.username === user.username) {
-        dispatch(updateUser({
-          ...currentUser,
-          name: editedUser.name,
-          lastName: editedUser.lastName,
-        }));
+        dispatch(
+          updateUser({
+            ...currentUser,
+            name: editedUser.name,
+            lastName: editedUser.lastName,
+          })
+        );
       }
-  
+
       handleCloseModal();
       navigate(`/profile/${editedUser?.username}`);
     } catch (error) {
@@ -93,103 +108,176 @@ export function Profile() {
     }
   };
 
-  const canEdit = currentUser.username === user?.username || currentUser.roles.includes("ADMIN");
+  const canEdit =
+    currentUser.username === user?.username ||
+    currentUser.roles.includes("ADMIN");
+
+  const calculateWinRate = () => {
+    const wins = matches.filter((match) => match.result === "win").length;
+    return ((wins / matches.length) * 100).toFixed(1);
+  };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col lg:flex-row lg:space-x-8">
-        <Card className="flex-grow mb-4 lg:mb-0">
-          <CardHeader>
-            <img
-              src="https://via.placeholder.com/100"
-              alt="User Avatar"
-              className="w-24 h-24 rounded-full mb-4"
-            />
-            <h2 className="text-2xl font-bold">{user?.username}</h2>
-          </CardHeader>
-          <CardContent>
-            {user ? (
-              <>
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Name:</strong> {user.name} {user.lastName}</p>
-                <p><strong>Elo:</strong> {user.elo}</p>
-              </>
-            ) : (
-              <p>Loading user data...</p>
-            )}
-          </CardContent>
-          <CardFooter>
-            {canEdit && (
-              <Button size="sm" variant="secondary" onClick={handleEditClick}>
-                Edit Profile
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
+    <div className="container mx-auto p-4 max-w-6xl">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Profile Card */}
+        <div className="lg:col-span-4">
+          <Card className="h-full">
+            <CardHeader className="text-center">
+              <div className="relative mx-auto">
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/10 mx-auto">
+                  <img
+                    src="https://i.pinimg.com/736x/5b/30/5f/5b305fca208d6162872c715f4c7643e1.jpg"
+                    alt="User Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {canEdit && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="absolute bottom-0 right-0"
+                    onClick={handleEditClick}
+                  >
+                    Edit
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {user ? (
+                <>
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-primary">
+                      {user.username}
+                    </h2>
+                    <p className="text-muted-foreground">{`${user.name} ${user.lastName}`}</p>
+                  </div>
 
-        <div className="mt-8 lg:mt-0 lg:w-1/2">
-          <h3 className="text-xl font-semibold mb-4">Match History</h3>
-          <div className="space-y-4">
-            {matches.map((match, index) => (
-              <Link to={`/match/${index}`} key={index}>
-                <Card className="p-4 shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        <strong>Date:</strong> {match.date}
-                      </p>
-                      <p className="text-sm">
-                        <strong>Opponent:</strong> {match.opponent}
-                      </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3 p-3 bg-primary/5 rounded-lg">
+                      <Mail className="w-5 h-5 text-primary" />
+                      <span className="text-sm">{user.email}</span>
                     </div>
-                    <div className="text-right">
-                      {match.result === "win" ? (
-                        <Trophy className="text-green-500 w-6 h-6" />
-                      ) : (
-                        <XCircle className="text-red-500 w-6 h-6" />
-                      )}
+                    <div className="flex items-center space-x-3 p-3 bg-primary/5 rounded-lg">
+                      <Star className="w-5 h-5 text-primary" />
+                      <span className="text-sm">ELO Rating: {user.elo}</span>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 bg-primary/5 rounded-lg">
+                      <Trophy className="w-5 h-5 text-primary" />
+                      <span className="text-sm">
+                        Win Rate: {calculateWinRate()}%
+                      </span>
                     </div>
                   </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                </>
+              ) : (
+                <div className="flex justify-center">
+                  <div className="animate-pulse space-y-4 w-full">
+                    <div className="h-4 bg-primary/10 rounded w-3/4 mx-auto"></div>
+                    <div className="h-4 bg-primary/10 rounded w-1/2 mx-auto"></div>
+                    <div className="h-10 bg-primary/10 rounded w-full"></div>
+                    <div className="h-10 bg-primary/10 rounded w-full"></div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Match History */}
+        <div className="lg:col-span-8">
+          <Card className="h-full">
+            <CardHeader>
+              <h3 className="text-xl font-semibold flex items-center space-x-2">
+                <Clock className="w-5 h-5" />
+                <span>Match History</span>
+              </h3>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {matches.map((match, index) => (
+                  <Link to={`/match/${index}`} key={index}>
+                    <Card className="hover:shadow-lg transition-all duration-300 border border-primary/10">
+                      <div className="p-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div
+                            className={`p-2 rounded-full ${
+                              match.result === "win"
+                                ? "bg-green-100"
+                                : "bg-red-100"
+                            }`}
+                          >
+                            {match.result === "win" ? (
+                              <Trophy className="w-6 h-6 text-green-500" />
+                            ) : (
+                              <XCircle className="w-6 h-6 text-red-500" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">vs. {match.opponent}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {match.date}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
+      {/* Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold mb-4">Edit Profile</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="max-w-sm w-full m-4">
+            <CardHeader>
+              <h3 className="text-lg font-semibold">Edit Profile</h3>
+            </CardHeader>
             <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Name:</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={editedUser?.name}
-                  onChange={handleInputChange}
-                  className="border rounded w-full p-2"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Last Name:</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={editedUser?.lastName}
-                  onChange={handleInputChange}
-                  className="border rounded w-full p-2"
-                  required
-                />
-              </div>
-              <div className="flex justify-between mt-4">
-                <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>
-                <Button type="submit">Save</Button>
-              </div>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Name:
+                  </label>
+                  <input
+                    placeholder="First Name"
+                    type="text"
+                    name="name"
+                    value={editedUser?.name}
+                    onChange={handleInputChange}
+                    className="w-full p-2 rounded-md border border-input bg-background"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Last Name:
+                  </label>
+                  <input
+                    placeholder="Last Name"
+                    type="text"
+                    name="lastName"
+                    value={editedUser?.lastName}
+                    onChange={handleInputChange}
+                    className="w-full p-2 rounded-md border border-input bg-background"
+                    required
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline" onClick={handleCloseModal}>
+                  Cancel
+                </Button>
+                <Button type="submit">Save Changes</Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>
