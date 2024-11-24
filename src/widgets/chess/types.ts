@@ -16,7 +16,8 @@ export interface BoardProps {
   openCoronation: boolean;
   handleDrop: (row: number, col: number) => void;
   handleDragStart: (row: number, col: number) => void;
-  possibleMoves: { row: number; col: number }[] | null; // Nueva prop
+  possibleMoves: { row: number; col: number }[] | null;
+  disableBoard: boolean;
 }
 
 export interface Cell {

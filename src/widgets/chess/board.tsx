@@ -6,23 +6,28 @@ const Board: React.FC<BoardProps> = ({
   handleDrop,
   handleDragStart,
   possibleMoves,
+  disableBoard,
 }) => {
   return (
-    <div className="grid grid-cols-8 grid-rows-8 w-full h-full">
+    <div
+      className={`grid grid-cols-8 grid-rows-8 w-full h-full ${
+        disableBoard ? "opacity-50 pointer-events-none" : ""
+      }`}
+    >
       {boardRepesentation.flat().map((cell, index) => {
         const row = Math.floor(index / 8);
         const col = index % 8;
         const isDarkCell = (row + col) % 2 === 1;
         const backgroundColor = isDarkCell ? "bg-gray-600" : "bg-gray-200";
-        const isAvailableMove = possibleMoves && possibleMoves.some(
-          (move) => move.row === row && move.col === col
-        );
+        const isAvailableMove =
+          possibleMoves &&
+          possibleMoves.some((move) => move.row === row && move.col === col);
 
         return (
           <div
             key={index}
-            onDrop={() => handleDrop(row, col)}
-            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => !disableBoard && handleDrop(row, col)}
+            onDragOver={(e) => !disableBoard && e.preventDefault()}
           >
             <ChessCell
               isSelected={false}
@@ -31,7 +36,7 @@ const Board: React.FC<BoardProps> = ({
               isAvailableMove={isAvailableMove}
               piece={cell ? cell.piece : null}
               backgroundColor={backgroundColor}
-              onDragStart={() => handleDragStart(row, col)}
+              onDragStart={() => !disableBoard && handleDragStart(row, col)}
             />
           </div>
         );

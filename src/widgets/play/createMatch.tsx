@@ -8,8 +8,6 @@ interface CreateMatchProps {
     onGameModeSelect: (mode: GameMode | null) => void;
 
     setUsernames: (usernames: string[]) => void;
-    setPlays: (plays: any[]) => void;
-    setMatchData: (matchData: Map<string, any>) => void;
     setMatchId: (id: number | null) => void;
 }
 
@@ -18,8 +16,6 @@ export function CreateMatch(
         selectedGameMode,
         onGameModeSelect,
         setUsernames,
-        setPlays,
-        setMatchData,
         setMatchId,
 
     }: CreateMatchProps) {
@@ -47,11 +43,10 @@ export function CreateMatch(
 
             setMatchId(data.id);
             setUsernames(data.usernames || []);
-            setPlays(data.plays || []);
-            setMatchData(new Map(Object.entries(data.matchData || {})));
 
-        } catch (err) {
-            setError("Ocurrió un error al crear la partida.");
+        } catch (error) {
+            setError("Ocurrió un error al crear la partida: ",);
+            console.error("Error al crear la partida: ", error);
         } finally {
             setIsLoading(false);
         }

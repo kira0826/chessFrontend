@@ -74,12 +74,12 @@ class StompService {
     }
   }
 
-  subscribe(destination: string, callback: CallbackFunction): void {
+    subscribe(destination: string, callback: CallbackFunction): void {
     if (!this.client) {
       console.error("No se puede suscribir. El cliente no está inicializado.");
       return;
     }
-
+    
     const headers: StompHeaders = {
       Authorization: this.getFormattedToken(),
     };
