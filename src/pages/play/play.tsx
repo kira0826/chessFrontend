@@ -1,4 +1,3 @@
-import GameModeDropdown, { GameMode } from '@/components/gameModeDropdown';
 import Board from "@/widgets/chess/board";
 import MatchInfo from "@/widgets/chess/matchInfo";
 import { Cell } from "@/widgets/chess/types";
@@ -17,15 +16,20 @@ import {
   isPromotion,
 } from "@/widgets/chess/boardAuxFunctions";
 import isValidMove from "@/validations/isValidMove";
+import { GameMode } from "@/widgets/play/gameModeDropdown";
+import { CreateMatch } from "@/widgets/play/createMatch";
+import { JoinMatch } from "@/widgets/play/joinMatch";
+import { ShareCodeDialog } from "@/widgets/play/shareCodeDialog";
 
 export function Play() {
   //------------------States--------------------------
 
-  const [selectedGameMode, setSelectedGameMode] = useState<GameMode | null>(null);
+  const [gameMode, setGameMode] = useState<GameMode | null>(null);
+  const [usernames, setUsernames] = useState<string[]>([]);
+  const [plays, setPlays] = useState<any[]>([]);
+  const [matchData, setMatchData] = useState<Map<string, any>>(new Map());
+  const [matchId, setMatchId] = useState<number | null>(null);
 
-  const handleGameModeSelect = (mode: GameMode | null) => {
-    setSelectedGameMode(mode);
-  };
 
   const [boardSetup, setBoardSetup] = useState<(Cell | null)[][]>(
     initialBoardSetup()
@@ -204,18 +208,31 @@ export function Play() {
       </main>
 
       <section className="flex flex-col h-5/6 w-1/3 bg-gray-200">
-      
-      <div className="p-8">
 
-      <GameModeDropdown onSelect={handleGameModeSelect} />
+        <div className="p-8">
+          {!matchId && (
+            <div>
+              <CreateMatch
+                selectedGameMode={gameMode}
+                onGameModeSelect={setGameMode}
+                setUsernames={setUsernames}
+                setPlays={setPlays}
+                setMatchData={setMatchData}
+                setMatchId={setMatchId}
+              />
 
-      {selectedGameMode && (
-        <div className="mt-4">
-          <p className="text-2xl font-bold">{selectedGameMode.name}</p>
-          <p className="text-2xl font-bold">{selectedGameMode.description}</p>
+              <JoinMatch />
+            </div>
+          )}
+
+          {matchId && (
+            <div>
+              <h2>Match #{matchId}</h2>
+              <p>Players: {usernames.join(", ")}</p>
+              {usernames.length != 2 && <ShareCodeDialog code={matchId}/> } 
+            </div>
+          )}
         </div>
-        )}
-      </div>
 
       </section>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from './ui/select';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '../../components/ui/select';
 import apiClient from '@/service/apiClient';
 
 export interface GameMode {
@@ -12,7 +12,7 @@ interface GameModeDropdownProps {
   onSelect: (selectedMode: GameMode | null) => void;
 }
 
-const GameModeDropdown: React.FC<GameModeDropdownProps> = ({ onSelect }) => {
+const GameModeDropdown = ({ onSelect } : GameModeDropdownProps) => {
   const [gameModes, setGameModes] = useState<GameMode[]>([]);
   const [selectedMode, setSelectedMode] = useState<GameMode | null>(null);
 
@@ -20,8 +20,14 @@ const GameModeDropdown: React.FC<GameModeDropdownProps> = ({ onSelect }) => {
     const fetchGameModes = async () => {
       try {
         const response = await apiClient.get<GameMode[]>('api/gamemodes');
-        console.log(response.data);
         setGameModes(response.data);
+
+        if (response.data.length > 0) {
+          const defaultMode = response.data[0];
+          setSelectedMode(defaultMode);
+          onSelect(defaultMode);
+        }
+        
       } catch (error) {
         console.error('Error al obtener modos de juego:', error);
       }
