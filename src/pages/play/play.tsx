@@ -126,6 +126,7 @@ export function Play() {
     return () => {
       service.disconnect();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
 
   const [openCoronation, setOpenCoronation] = useState<boolean>(false);

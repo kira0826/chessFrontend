@@ -34,6 +34,7 @@ const GameModeDropdown = ({ onSelect } : GameModeDropdownProps) => {
     };
 
     fetchGameModes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSelect = (modeId: string) => {
