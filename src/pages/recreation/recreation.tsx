@@ -143,10 +143,9 @@ export function Recreation() {
   
   const {
     boardSetup,
-    openCoronation,
     performMove,
     updateBoardState,
-    resetBoard
+    resetBoard,
   } = useChessBoard();
 
 
@@ -204,7 +203,8 @@ export function Recreation() {
         
         <Board
           boardRepesentation={boardSetup}
-          openCoronation={openCoronation}
+          openCoronation={false}
+          possibleMoves={[]}
           handleDrop={() => {}}
           handleDragStart={() => {}}
         />

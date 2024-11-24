@@ -11,6 +11,7 @@ export function Play() {
     handleDrop,
     handlePromotion,
     setOpenCoronation,
+    possibleMoves
   } = useChessBoard();
 
   return (
@@ -23,6 +24,7 @@ export function Play() {
           openCoronation={openCoronation}
           handleDrop={handleDrop}
           handleDragStart={handleDragStart}
+          possibleMoves={possibleMoves}
         />
 
         <MatchInfo username="Zai0826" elo={300} profilePicture="" />
