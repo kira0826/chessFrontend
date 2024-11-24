@@ -107,6 +107,7 @@ export const handleEnPassantCapture = (
   return newBoard;
 };
 
+
 export const updateEnPassantEligibility = (
   board: (Cell | null)[][],
   piece: Piece,

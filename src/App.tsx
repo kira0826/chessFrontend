@@ -15,7 +15,6 @@ function App() {
     <Route path="/analysis/*" element={<AnalysisLayout/>} />
     <Route path="/recreation/*" element={<RecreationLayout/>} />
     <Route path="/*" element={<HomeLayout/>} />
-    <Route path="/recreation/*" element={<RecreationLayout/>} />
   </Routes>
   );
   
