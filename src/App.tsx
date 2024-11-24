@@ -3,8 +3,8 @@ import { PlayLayout } from "./layout/playLayout";
 import { ProfileLayout } from "./layout/profileLayout";
 import { AuthLayout } from "./layout/authLayout";
 import { HomeLayout } from "./layout/homeLayout";
-import { AnalysisLayout } from "./layout";
 import { RecreationLayout } from "./layout/recreationLayout";
+import { AnalysisLayout } from "./layout";
 
 function App() {
   return (
@@ -13,6 +13,7 @@ function App() {
     <Route path="/profile/*" element={<ProfileLayout/>} />
     <Route path="/auth/*" element={<AuthLayout/>} />
     <Route path="/analysis/*" element={<AnalysisLayout/>} />
+    <Route path="/recreation/*" element={<RecreationLayout/>} />
     <Route path="/*" element={<HomeLayout/>} />
     <Route path="/recreation/*" element={<RecreationLayout/>} />
   </Routes>

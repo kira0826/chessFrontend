@@ -164,7 +164,7 @@ export function Play() {
 
   return (
     <div className="flex flex-row justify-center mx-auto items-center h-full w-11/12 space-x-12">
-      <main className="flex flex-col justify-center items-center h-5/6  w-2/4 space-y-2  ">
+      <main className="flex flex-col justify-center items-center h-5/6 w-2/4 space-y-2">
         <MatchInfo username="AleLonber" elo={1200} profilePicture="" />
 
         <Board
@@ -172,6 +172,7 @@ export function Play() {
           openCoronation={openCoronation}
           handleDrop={handleDrop}
           handleDragStart={handleDragStart}
+          possibleMoves={null}
         />
 
         <MatchInfo username="Zai0826" elo={300} profilePicture="" />
