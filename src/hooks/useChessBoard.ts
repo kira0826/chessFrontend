@@ -46,6 +46,8 @@ interface UseChessBoardReturn {
     toRow: number,
     toCol: number
   ) => void;
+  possibleMoves: { row: number; col: number }[]; // Nueva propiedad
+
 }
 
 export function useChessBoard(): UseChessBoardReturn {
@@ -61,6 +63,7 @@ export function useChessBoard(): UseChessBoardReturn {
     col: number;
   } | null>(null);
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
+  const [possibleMoves, setPossibleMoves] = useState<{ row: number; col: number }[]>([]);
 
   const updateBoardState = (
     newBoard: (Cell | null)[][],
@@ -78,6 +81,35 @@ export function useChessBoard(): UseChessBoardReturn {
       toRow,
       toCol,
     });
+  };
+
+  const calculatePossibleMoves = (row: number, col: number) => {
+    const piece = boardSetup[row][col]?.piece;
+    if (!piece) return [];
+
+    const moves: { row: number; col: number }[] = [];
+    
+    // Iterar sobre todas las posiciones del tablero
+    for (let toRow = 0; toRow < 8; toRow++) {
+      for (let toCol = 0; toCol < 8; toCol++) {
+        if (isValidMove(piece, row, col, toRow, toCol, boardSetup, lastMove)) {
+          // Verificar que el movimiento no deja al rey en jaque
+          const newBoard = performMove(
+            boardSetup,
+            piece,
+            row,
+            col,
+            toRow,
+            toCol
+          );
+          if (!isKingInCheck(newBoard, piece.isWhite)) {
+            moves.push({ row: toRow, col: toCol });
+          }
+        }
+      }
+    }
+    
+    return moves;
   };
 
   const performMove = (
@@ -106,6 +138,7 @@ export function useChessBoard(): UseChessBoardReturn {
 
   const handleDragStart = (row: number, col: number) => {
     setDraggedPiece({ row, col });
+    setPossibleMoves(calculatePossibleMoves(row, col));
   };
 
   const handleDrop = (row: number, col: number) => {
@@ -152,6 +185,7 @@ export function useChessBoard(): UseChessBoardReturn {
       } else {
         console.log("Movimiento inválido");
       }
+      setPossibleMoves([]); // Limpiar los movimientos posibles después del drop
       setDraggedPiece(null);
     }
   };
@@ -181,6 +215,7 @@ export function useChessBoard(): UseChessBoardReturn {
     setPendingPromotion(null);
     setOpenCoronation(false);
     setDraggedPiece(null);
+    setPossibleMoves([]);
   };
 
   return {
@@ -193,5 +228,6 @@ export function useChessBoard(): UseChessBoardReturn {
     resetBoard,
     performMove,
     updateBoardState,
+    possibleMoves,
   };
 }
