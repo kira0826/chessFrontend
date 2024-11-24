@@ -2,22 +2,16 @@ import { useState } from "react";
 import Board from "@/widgets/chess/board";
 import MatchInfo from "@/widgets/chess/matchInfo";
 import MoveNavigation from "@/components/MoveNavigation";
-import { Cell, Play } from "@/widgets/chess/types";
-import { Piece } from "@/widgets";
+import { Play } from "@/widgets/chess/types";
 import {
   isKingInCheck,
   initialBoardSetup,
+  parsePosition,
+  getPieceFromPosition,
+  determinePieceColor
 } from "@/widgets/chess/boardAuxFunctions";
 import { useChessBoard } from "@/hooks/useChessBoard";
 
-
-
-
-const parsePosition = (position: string): { row: number; col: number } => {
-  const col = position.charCodeAt(0) - 'a'.charCodeAt(0);
-  const row = 8 - parseInt(position[1]);
-  return { row, col };
-};
 
 export function Recreation() {
   // Example plays - this would typically come from props or an API
@@ -142,7 +136,6 @@ export function Recreation() {
         matchId: 2,
         chessCardId: 17,
       }
-    // Add more sample moves as needed
   ];
 
   const [plays] = useState<Play[]>(samplePlays);
@@ -150,35 +143,20 @@ export function Recreation() {
   
   const {
     boardSetup,
-    openCoronation,
     performMove,
     updateBoardState,
-    resetBoard
+    resetBoard,
   } = useChessBoard();
 
 
-  const getPieceFromPosition = (board: (Cell | null)[][], row: number, col: number): Piece | null => {
-    return board[row][col]?.piece || null;
-  };
-
-  const determinePieceColor = (moveIndex: number): boolean => {
-    // En ajedrez, blancas mueven primero, así que los movimientos pares son negras
-    // y los impares son blancas
-    return moveIndex % 2 === 0;
-  };
-
   const handleMoveSelect = (index: number) => {
     if (index < -1 || index >= plays.length) return;
-
     if (index === -1) {
       resetBoard();
       setCurrentMoveIndex(-1);
       return;
     }
-
-    // Reset to initial position and replay all moves up to the selected index
     let currentBoard = initialBoardSetup();
-    
     for (let i = 0; i <= index; i++) {
       const move = plays[i];
       const from = parsePosition(move.origin);
@@ -225,7 +203,8 @@ export function Recreation() {
         
         <Board
           boardRepesentation={boardSetup}
-          openCoronation={openCoronation}
+          openCoronation={false}
+          possibleMoves={[]}
           handleDrop={() => {}}
           handleDragStart={() => {}}
         />
