@@ -20,19 +20,19 @@ import { DropdownMenuContent, DropdownMenuItem } from "../../components/ui/dropd
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { clearUser } from "@/features/user/userSlice";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const notLoggedIn = [
-    { title: "Log In", path: "auth/sign-in", icon: LogIn },
+    { title: "Log In", path: "/auth/sign-in", icon: LogIn },
     { title: "Sign Up", path: "#", icon: UserPlus },
 ];
 
 const loggedInUser = [
-    { title: "Play", path: "play", icon: Play },
+    { title: "Play", path: "/play", icon: Play },
 ];
 
 const loggedInAdmin = [
-    { title: "Play", path: "play", icon: Play },
+    { title: "Play", path: "/play", icon: Play },
     { title: "Users", path: "#", icon: Users },
     { title: "Roles", path: "#", icon: ShieldAlert },
     { title: "Permissions", path: "#", icon: Settings },
@@ -77,10 +77,13 @@ export function AppSidebar() {
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
-                                        <a href={item.path}>
+                                    <button
+                                            onClick={() => navigate(item.path)}
+                                            className="flex items-center gap-2"
+                                        >
                                             <item.icon />
                                             <span>{item.title}</span>
-                                        </a>
+                                        </button>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
@@ -105,11 +108,11 @@ export function AppSidebar() {
                                     className="w-[--radix-popper-anchor-width]"
                                 >
                                     
-                                    <Link to={`/profile/${user.username}`}>
-                                    <DropdownMenuItem>
-                                    Profile
+                                    <DropdownMenuItem
+                                        onClick={() => navigate(`/profile/${user.username}`)}
+                                    >
+                                        Profile
                                     </DropdownMenuItem>
-                                    </Link>
                                     
                                     <DropdownMenuItem onClick={handleLogout}>
                                         <span>Sign out</span>
