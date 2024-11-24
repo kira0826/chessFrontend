@@ -221,7 +221,12 @@ export function Play() {
                 setMatchId={setMatchId}
               />
 
-              <JoinMatch />
+              <JoinMatch 
+              setUsernames={setUsernames}
+              setPlays={setPlays}
+              setMatchData={setMatchData}
+              setMatchId={setMatchId}
+              />
             </div>
           )}
 
