@@ -16,6 +16,11 @@ class StompService {
     this.subscriptions = {};
   }
 
+  private getFormattedToken(): string {
+    const token = sessionStorage.getItem("token") || "";
+    return token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+  }
+
   connect(url: string, onConnectCallback?: () => void): void {
     const socketUrl = `${url}`;
 
@@ -29,7 +34,6 @@ class StompService {
       onConnect: () => {
         console.log("Conectado a WebSocket");
         this.isConnect = true;
-        this.processSubscriptions();
 
         if (onConnectCallback) {
           onConnectCallback();
@@ -58,7 +62,7 @@ class StompService {
 
     // Establecer las cabeceras STOMP personalizadas
     this.client.connectHeaders = {
-      Authorization: `Bearer ${sessionStorage.getItem("token") || ""}`,
+      Authorization: this.getFormattedToken(),
     };
 
     this.client.activate();
@@ -77,7 +81,7 @@ class StompService {
     }
 
     const headers: StompHeaders = {
-      Authorization: `Bearer ${sessionStorage.getItem("token") || ""}`,
+      Authorization: this.getFormattedToken(),
     };
 
     const subscription = this.client.subscribe(
@@ -100,28 +104,18 @@ class StompService {
     }
   }
 
-  private processSubscriptions(): void {
-    Object.keys(this.callbacks).forEach((destination) => {
-      if (!this.subscriptions[destination] && this.client) {
-        const callback = this.callbacks[destination];
-        const subscription = this.client.subscribe(
-          destination,
-          (msg: IMessage) => {
-            const message = JSON.parse(msg.body);
-            callback(message);
-          }
-        );
-        this.subscriptions[destination] = subscription;
-      }
-    });
-  }
-
   publish(destination: string, message: unknown): void {
     if (this.isConnect && this.client) {
       console.log(`Enviando mensaje a ${destination}:`, message);
+
+      const headers: StompHeaders = {
+        Authorization: this.getFormattedToken(),
+      };
+
       this.client.publish({
         destination,
         body: JSON.stringify(message),
+        headers,
       });
     } else {
       console.error(

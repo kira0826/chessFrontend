@@ -27,6 +27,8 @@ export function SignIn() {
       const token = response.headers.authorization;
       sessionStorage.setItem("token", token);
 
+      console.log("Token", sessionStorage.getItem("token"));
+
       const userData: UserState = {
         roles: response.data.roles,
         username: response.data.username,
@@ -35,7 +37,7 @@ export function SignIn() {
         email: response.data.email,
         Id: response.data.id,
         elo: response.data.elo,
-    };
+      };
       dispatch(setUser(userData));
       console.log("Login successful", response.data);
       navigate("/");

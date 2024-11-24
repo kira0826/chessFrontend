@@ -1,28 +1,44 @@
 import Board from "@/widgets/chess/board";
 import MatchInfo from "@/widgets/chess/matchInfo";
 import { Cell } from "@/widgets/chess/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { initialBoardSetup } from "@/widgets/chess/boardAuxFunctions";
 import Coronation from "@/widgets/chess/coronation";
 import { Piece } from "@/widgets";
 import { LastMove } from "@/widgets/chess/types";
 import { PieceType } from "@/widgets";
-import {
-  movePiece,
-  handleCastling,
-  handleEnPassantCapture,
-  updateEnPassantEligibility,
-  isKingInCheck,
-  isPromotion,
-} from "@/widgets/chess/boardAuxFunctions";
+import { isKingInCheck, isPromotion } from "@/widgets/chess/boardAuxFunctions";
 import isValidMove from "@/validations/isValidMove";
+import StompService from "@/service/webSocketService";
+import { performMove } from "./playAux";
 import { GameMode } from "@/widgets/play/gameModeDropdown";
 import { CreateMatch } from "@/widgets/play/createMatch";
 import { JoinMatch } from "@/widgets/play/joinMatch";
 import { ShareCodeDialog } from "@/widgets/play/shareCodeDialog";
 
 export function Play() {
+  const getWebSocketUrl = () => {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const hostname = window.location.hostname;
+    const port = window.location.port ? `:${window.location.port}` : "";
+    console.log(`${protocol}//${hostname}${port}/chessBack/ws-connect`);
+    return `${protocol}//${hostname}${port}/chessBack/ws-connect`;
+  };
   //------------------States--------------------------
+
+  useEffect(() => {
+    console.log("Connecting to websocket");
+    console.log("Token: ", sessionStorage.getItem("token"));
+    const service = new StompService();
+
+    const url = getWebSocketUrl();
+    console.log("URL for deploy: ", url);
+
+    service.connect("/ws-connect-js", () => {
+      // console.log("Connect using url: ", url);
+      console.log("Connected to using proxy");
+    });
+  }, []);
 
   const [gameMode, setGameMode] = useState<GameMode | null>(null);
   const [usernames, setUsernames] = useState<string[]>([]);
@@ -53,6 +69,9 @@ export function Play() {
 
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
 
+  const [possibleMoves, setPossibleMoves] = useState<
+    { row: number; col: number }[]
+  >([]);
 
   //------------------Perform move--------------------------
 
@@ -64,7 +83,6 @@ export function Play() {
     toRow: number,
     toCol: number
   ) => {
-    // Actualizar el estado del tablero y el último movimiento
     setBoardSetup(newBoard);
     setLastMove({
       piece: piece,
@@ -73,37 +91,6 @@ export function Play() {
       toRow: toRow,
       toCol: toCol,
     });
-  };
-
-  const performMove = (
-    board: (Cell | null)[][],
-    piece: Piece,
-    fromRow: number,
-    fromCol: number,
-    toRow: number,
-    toCol: number
-  ): (Cell | null)[][] => {
-    let newBoard = board.map((boardRow) => boardRow.slice());
-
-    // Mover la pieza
-    newBoard = movePiece(newBoard, fromRow, fromCol, toRow, toCol, piece);
-
-    // Manejar captura al paso
-    newBoard = handleEnPassantCapture(newBoard, piece, fromCol, toRow, toCol);
-
-    // Actualizar elegibilidad de en passant
-    newBoard = updateEnPassantEligibility(
-      newBoard,
-      piece,
-      fromRow,
-      toRow,
-      toCol
-    );
-
-    // Manejar enroque
-    newBoard = handleCastling(newBoard, piece, fromCol, toRow, toCol);
-
-    return newBoard;
   };
 
   const handlePromotion = (promotedPieceType: PieceType) => {
@@ -131,11 +118,11 @@ export function Play() {
     }
   };
 
-
   //------------------Board handlers on select and drop--------------------------
 
   const handleDragStart = (row: number, col: number) => {
     setDraggedPiece({ row, col });
+    setPossibleMoves(calculatePossibleMoves(row, col));
   };
 
   const handleDrop = (row: number, col: number) => {
@@ -188,13 +175,41 @@ export function Play() {
       } else {
         console.log("Movimiento inválido");
       }
+      setPossibleMoves([]);
       setDraggedPiece(null);
     }
   };
 
+  const calculatePossibleMoves = (row: number, col: number) => {
+    const piece = boardSetup[row][col]?.piece;
+    if (!piece) return [];
+
+    const moves: { row: number; col: number }[] = [];
+
+    for (let toRow = 0; toRow < 8; toRow++) {
+      for (let toCol = 0; toCol < 8; toCol++) {
+        if (isValidMove(piece, row, col, toRow, toCol, boardSetup, lastMove)) {
+          const newBoard = performMove(
+            boardSetup,
+            piece,
+            row,
+            col,
+            toRow,
+            toCol
+          );
+          if (!isKingInCheck(newBoard, piece.isWhite)) {
+            moves.push({ row: toRow, col: toCol });
+          }
+        }
+      }
+    }
+
+    return moves;
+  };
+
   return (
     <div className="flex flex-row justify-center mx-auto items-center h-full w-11/12 space-x-12">
-      <main className="flex flex-col justify-center items-center h-5/6  w-2/4 space-y-2  ">
+      <main className="flex flex-col justify-center items-center h-5/6 w-2/4 space-y-2">
         <MatchInfo username="AleLonber" elo={1200} profilePicture="" />
 
         <Board
@@ -202,6 +217,7 @@ export function Play() {
           openCoronation={openCoronation}
           handleDrop={handleDrop}
           handleDragStart={handleDragStart}
+          possibleMoves={possibleMoves}
         />
 
         <MatchInfo username="Zai0826" elo={300} profilePicture="" />

@@ -3,17 +3,18 @@ import logoMini from "/public/logoMini.png";
 
 
 import { LogIn, UserPlus, Play, User, Users, Settings, ShieldAlert, ChevronUp } from "lucide-react";
+
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    useSidebar,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { DropdownMenuContent, DropdownMenuItem } from "../../components/ui/dropdown-menu";
@@ -39,26 +40,26 @@ const loggedInAdmin = [
 ];
 
 export function AppSidebar() {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const { state } = useSidebar();
-    const user = useSelector((state: RootState) => state.user);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { state } = useSidebar();
+  const user = useSelector((state: RootState) => state.user);
 
-    let items;
+  let items;
 
-    if (user.roles.length === 0) {
-        items = notLoggedIn;
-    } else if (user.roles.includes("ADMIN")) {
-        items = loggedInAdmin;
-    } else {
-        items = loggedInUser;
-    }
+  if (user.roles.length === 0) {
+    items = notLoggedIn;
+  } else if (user.roles.includes("ADMIN")) {
+    items = loggedInAdmin;
+  } else {
+    items = loggedInUser;
+  }
 
-    const handleLogout = () => {
-        sessionStorage.removeItem('token');
-        dispatch(clearUser());
-        navigate("/");
-    };
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    dispatch(clearUser());
+    navigate("/");
+  };
 
     return (
         <Sidebar collapsible="icon">
@@ -126,5 +127,3 @@ export function AppSidebar() {
         </Sidebar>
     );
 }
-
-
