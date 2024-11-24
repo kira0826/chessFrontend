@@ -1,3 +1,7 @@
+import logo from "/public/logo.png";
+import logoMini from "/public/logoMini.png";
+
+
 import { LogIn, UserPlus, Play, User, Users, Settings, ShieldAlert, ChevronUp } from "lucide-react";
 import {
     Sidebar,
@@ -60,9 +64,9 @@ export function AppSidebar() {
         <Sidebar collapsible="icon">
             <SidebarHeader>
                 {state === "collapsed" ? (
-                    <img src="/logoMini.png" alt="Small Logo" className="w-8 h-8 p-2" />
+                    <img src={logoMini} alt="Small Logo" className="w-8 h-8 p-2" />
                 ) : (
-                    <img src="/logo.png" alt="Full Logo" className="w-full h-auto p-4" />
+                    <img src={logo} alt="Full Logo" className="w-full h-auto p-4" />
                 )}
             </SidebarHeader>
 

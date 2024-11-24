@@ -6,6 +6,7 @@ import { User, Lock } from "lucide-react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import logo from "/public/logo.png";
 
 export function SignIn() {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export function SignIn() {
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="">
         <header className="w-64 h-32">
-          <img src="/logo.png" alt="Full Logo" className="w-full h-full object-contain p-4" />
+          <img src={logo} alt="Full Logo" className="w-full h-full object-contain p-4" />
         </header>
 
         <main className="">
