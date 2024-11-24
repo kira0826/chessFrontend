@@ -1,5 +1,5 @@
 import MatchInfo from "@/widgets/chess/matchInfo";
-import { Play } from "../../models/types";
+import { Play } from "../../widgets/chess/types";
 import { useState } from "react";
 import MoveNavigation from "@/widgets/chess/moveNavigation";
 

@@ -5,6 +5,7 @@ import { Profile } from "./pages/profile/Profile";
 import { Analysis } from "./pages";
 import { Recreation } from "./pages";
 import ProtectedRoute from "./features/user/manageRoutes";
+import { Match } from "./pages/match/match";
 
 
 
@@ -42,11 +43,29 @@ export const routes = [
         name: "profile main",
         path: "/:username",
         element:  
-        <Profile />
+        <ProtectedRoute>
+         <Profile />
+        </ProtectedRoute>
+      },
+    ],
+  },
+
+  {
+    layout: "match",
+    pages: [
+      {
+        name: "match",
+        path: "/:matchId",
+        element:  
+        <ProtectedRoute>
+          <Match />
+        </ProtectedRoute>
+        
 
       },
     ],
   },
+
   {
     layout: "auth",
     pages: [
