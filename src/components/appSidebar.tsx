@@ -24,11 +24,11 @@ const notLoggedIn = [
 ];
 
 const loggedInUser = [
-    { title: "Play", path: "#", icon: Play },
+    { title: "Play", path: "/play", icon: Play },
 ];
 
 const loggedInAdmin = [
-    { title: "Play", path: "#", icon: Play },
+    { title: "Play", path: "/play", icon: Play },
     { title: "Users", path: "#", icon: Users },
     { title: "Roles", path: "#", icon: ShieldAlert },
     { title: "Permissions", path: "#", icon: Settings },

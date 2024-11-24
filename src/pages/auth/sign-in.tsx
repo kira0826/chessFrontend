@@ -26,6 +26,8 @@ export function SignIn() {
       const token = response.headers.authorization;
       sessionStorage.setItem("token", token);
 
+      console.log("Token", sessionStorage.getItem("token"));
+
       const userData: UserState = {
         roles: response.data.roles,
         username: response.data.username,

@@ -1,7 +1,7 @@
 import Board from "@/widgets/chess/board";
 import MatchInfo from "@/widgets/chess/matchInfo";
 import { Cell } from "@/widgets/chess/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { initialBoardSetup } from "@/widgets/chess/boardAuxFunctions";
 import Coronation from "@/widgets/chess/coronation";
 import { Piece } from "@/widgets";
@@ -16,11 +16,26 @@ import {
   isPromotion,
 } from "@/widgets/chess/boardAuxFunctions";
 import isValidMove from "@/validations/isValidMove";
+import StompService from "@/service/webSocketService";
 
 export function Play() {
 
 
   //------------------States--------------------------
+
+  useEffect(()=>{
+      console.log("Connecting to websocket");
+      console.log("Token: ", sessionStorage.getItem("token")) 
+      const service = new StompService();
+
+      service.connect("/ws-connect-js", () => {
+        console.log("Connect using vite proxy");
+      });
+
+  }, [])
+
+
+
 
   const [boardSetup, setBoardSetup] = useState<(Cell | null)[][]>(
     initialBoardSetup()
@@ -198,7 +213,13 @@ export function Play() {
         <MatchInfo username="Zai0826" elo={300} profilePicture="" />
       </main>
 
-      <section className="flex flex-col h-5/6 w-1/3 bg-gray-200"></section>
+      <section className="flex flex-col h-5/6 w-1/3 bg-gray-200">
+
+
+
+
+      
+      </section>
 
       {openCoronation && (
         <Coronation
