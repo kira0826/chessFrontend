@@ -309,6 +309,7 @@ export function Play() {
       }
     }
 
+
     return moves;
   };
 
@@ -383,3 +384,4 @@ export function Play() {
     </div>
   );
 }
+
