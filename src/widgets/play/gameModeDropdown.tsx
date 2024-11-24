@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '../../components/ui/select';
 import apiClient from '@/service/apiClient';
 
@@ -43,6 +43,7 @@ useEffect(() => {
   };
 
   fetchGameModes();
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
   const handleSelect = (modeId: string) => {
