@@ -24,7 +24,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
+import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { clearUser } from "@/features/user/userSlice";
@@ -52,7 +52,9 @@ export function AppSidebar() {
 
   let items;
 
-  if (user.roles.length === 0) {
+  if (!user || !user.roles) {
+    items = notLoggedIn; 
+  } else if (user.roles.length === 0) {
     items = notLoggedIn;
   } else if (user.roles.includes("ADMIN")) {
     items = loggedInAdmin;
@@ -112,7 +114,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {user.roles.length > 0 && (
+      {user?.roles?.length > 0 && (
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
