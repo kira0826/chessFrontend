@@ -5,7 +5,7 @@ import { AuthLayout } from "./layout/authLayout";
 import { HomeLayout } from "./layout/homeLayout";
 import { RecreationLayout } from "./layout/recreationLayout";
 import { AnalysisLayout } from "./layout";
-
+import { RecreationLayout } from "./layout/recreationLayout";
 
 function App() {
   return (
@@ -16,8 +16,10 @@ function App() {
     <Route path="/analysis/*" element={<AnalysisLayout/>} />
     <Route path="/recreation/*" element={<RecreationLayout/>} />
     <Route path="/*" element={<HomeLayout/>} />
+    <Route path="/recreation/*" element={<RecreationLayout/>} />
   </Routes>
   );
+  
 }
 
 export default App;

@@ -5,6 +5,8 @@ import { Recreation } from "./pages/recreation/recreation";
 import { Profile } from "./pages/profile/Profile";
 import { Analysis } from "./pages";
 
+
+
 export const routes = [
   {
     layout: "home",
@@ -33,8 +35,8 @@ export const routes = [
     pages: [
       {
         name: "profile main",
-        path: "/",
-        element: <Profile />
+        path: "/:username",
+        element: <Profile />,
       },
     ],
   },
