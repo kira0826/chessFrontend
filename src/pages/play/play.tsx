@@ -20,12 +20,27 @@ export function Play() {
 
   //------------------States--------------------------
 
+  const [matchId, setMatchId] = useState<number>(0);
+
+
+
+
+
   useEffect(() => {
     console.log("Connecting to websocket");
     console.log("Token: ", sessionStorage.getItem("token"))
     const service = new StompService();
 
     service.connect("/ws-connect-js", () => {
+
+      service.subscribe("/playTo/match", (message: unknown) => {
+
+        console.log("Message received: ", message);
+
+
+      });
+
+
       console.log("Connect using vite proxy");
     });
 
@@ -209,6 +224,10 @@ export function Play() {
       </main>
 
       <section className="flex flex-col h-5/6 w-1/3 bg-gray-200">
+
+      <input type="text" value={matchId} onChange={(e) => setMatchId(parseInt(e.target.value))} />
+    
+
       </section>
 
       {openCoronation && (
