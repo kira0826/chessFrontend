@@ -3,7 +3,7 @@ import { Home } from "./pages/home/home";
 import { Play } from "./pages/play/play";
 import { Profile } from "./pages/profile/Profile";
 import { Analysis } from "./pages";
-import { Recreation } from "./pages";
+import { Recreation } from "./pages/recreation/recreation";
 
 
 
