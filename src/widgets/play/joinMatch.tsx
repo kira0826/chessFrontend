@@ -8,12 +8,15 @@ interface JoinMatchProps {
     setUsernames: (usernames: string[]) => void;
     setMatchId: (id: number | null) => void;
     setDisableBoard: (disable: boolean) => void;
+    setIsWhitePiece: (isWhitePiece: boolean) => void;
 }
 
 export function JoinMatch({
     setUsernames,
     setMatchId,
-    setDisableBoard
+    setDisableBoard,
+    setIsWhitePiece
+
 
 }: JoinMatchProps) {
     const [_matchId, _setMatchId] = useState<number|null>(null);
@@ -35,6 +38,7 @@ export function JoinMatch({
             setMatchId(data.id);
             setUsernames(data.usernames || []);
             setDisableBoard(false);
+            setIsWhitePiece(false)
 
         } catch (err) {
             setError("Ocurrió un error al crear la partida.");

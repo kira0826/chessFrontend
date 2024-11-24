@@ -6,7 +6,7 @@ import {
   handleEnPassantCapture,
   updateEnPassantEligibility,
 } from "@/widgets/chess/boardAuxFunctions";
-import { PieceDTO } from "./types";
+import { PieceDTO, type PlayDTO } from "./types";
 import { PieceType } from "@/widgets";
 
 export const performMove = (
@@ -34,43 +34,45 @@ export const performMove = (
   return newBoard;
 };
 
+
+//Based on movements got from websocket,  update the board with the new positions.
+
 export function updateBoardWithChanges(
   currentBoard: (Cell | null)[][],
-  matchDataMap: Map<string, PieceDTO>
+  matchDataMap: Map<string, PieceDTO>,
+  lastPlay: PlayDTO
 ): (Cell | null)[][] {
+  // Extraer la posición destino de la jugada
+  const { destination } = lastPlay;
+
   return currentBoard.map((row, rowIndex) =>
     row.map((currentCell, colIndex) => {
       // Convertir índices a notación de ajedrez (a1, b2, etc.)
       const position = String.fromCharCode(97 + colIndex) + (8 - rowIndex);
+
+      // Obtener la pieza nueva para esta posición
       const newPiece = matchDataMap.get(position);
 
       if (!newPiece) {
-
-        return currentCell;
+        // Si no hay pieza en matchData para esta posición, la celda queda vacía
+        return null;
       }
 
+      // Crear el objeto Piece actualizado
       const updatedPiece: Piece = {
         isWhite: newPiece.color === "W",
         type: newPiece.type as PieceType,
       };
 
+      // Verificar si esta celda es el destino de la última jugada
+      const isDestination = position === destination;
 
-      const hasPieceChanged =
-        currentCell?.piece?.type !== updatedPiece.type ||
-        currentCell?.piece?.isWhite !== updatedPiece.isWhite;
-
-
-      if (hasPieceChanged ) {
-
-        return {
-          piece: updatedPiece,
-          hasMoved: true, // Cambios detectados => hasMoved = true
-          enPassantEligible:  currentCell?.enPassantEligible || false,
-        };
-      }
-
-      // Si no hay cambios, devolver la celda tal como está
-      return currentCell;
+      return {
+        piece: updatedPiece,
+        hasMoved: currentCell?.hasMoved || false, // Preservar hasMoved anterior si aplica
+        enPassantEligible: currentCell?.enPassantEligible || false, // Preservar enPassant
+        hasChanged: isDestination, // Solo marcar hasChanged si es el destino
+      };
     })
   );
 }

@@ -7,6 +7,7 @@ const Board: React.FC<BoardProps> = ({
   handleDragStart,
   possibleMoves,
   disableBoard,
+  isWhitePlayer
 }) => {
   return (
     <div
@@ -36,7 +37,7 @@ const Board: React.FC<BoardProps> = ({
               isAvailableMove={isAvailableMove}
               piece={cell ? cell.piece : null}
               backgroundColor={backgroundColor}
-              onDragStart={() => !disableBoard && handleDragStart(row, col)}
+              onDragStart={() => (!disableBoard && cell?.piece?.isWhite == isWhitePlayer  )&& handleDragStart(row, col)}
             />
           </div>
         );

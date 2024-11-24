@@ -15,9 +15,10 @@ export interface BoardProps {
   boardRepesentation: (Cell | null)[][];
   openCoronation: boolean;
   handleDrop: (row: number, col: number) => void;
-  handleDragStart: (row: number, col: number) => void;
+  handleDragStart: (row: number, col: number) => void ;
   possibleMoves: { row: number; col: number }[] | null;
   disableBoard: boolean;
+  isWhitePlayer: boolean;
 }
 
 export interface Cell {

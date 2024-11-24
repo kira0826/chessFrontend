@@ -40,6 +40,7 @@ export function Play() {
   const [boardSetup, setBoardSetup] = useState<(Cell | null)[][]>(
     initialBoardSetup()
   );
+  const [isWhitePiece, setIsWhitePiece] = useState<boolean>(true);
 
   //Suscribe to topic based on matchId
 
@@ -57,6 +58,8 @@ export function Play() {
 
           console.log("Received message on suscribre function: ", message);
 
+          //------------------Handle message type #1--------------------------
+
           if (isMessageType1(message)) {
             const castedMessage = message as { message: string };
             console.log("Message Type 1: ", castedMessage.message);
@@ -68,6 +71,8 @@ export function Play() {
           }
 
           console.log("Is message type 2: ", isMessageType2(message));
+
+          //------------------Handle message type #2--------------------------
 
           if (isMessageType2(message)) {
             console.log("On message type 2: ", message);
@@ -94,7 +99,13 @@ export function Play() {
 
             setSequenceNumber(lastPlay);
 
-            setBoardSetup(updateBoardWithChanges(boardSetup, matchDataMap));
+            setBoardSetup(
+              updateBoardWithChanges(
+                boardSetup,
+                matchDataMap,
+                matchData.plays[matchData.plays.length - 1]
+              )
+            );
 
             console.log("Validator Response: ", validatorResponse);
 
@@ -311,8 +322,9 @@ export function Play() {
           boardRepesentation={boardSetup}
           openCoronation={openCoronation}
           handleDrop={handleDrop}
-          handleDragStart={handleDragStart}
+          handleDragStart={((isWhitePiece && sequenceNumber % 2 == 0 )|| (!isWhitePiece && sequenceNumber % 2 != 0)) ?  handleDragStart : () => {}}
           possibleMoves={possibleMoves}
+          isWhitePlayer={isWhitePiece}
         />
 
         <MatchInfo username="Zai0826" elo={300} profilePicture="" />
@@ -320,6 +332,17 @@ export function Play() {
 
       <section className="flex flex-col h-5/6 w-1/3 ">
         <div className="p-8">
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            {isWhitePiece ? "You're white player, yeahh" : "You're black as shit joe"} 
+          </h3>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            {`Sequenece Number: ${sequenceNumber}`}
+          </h3>
+
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            {`Turn of: ` + (sequenceNumber % 2 === 0 ? "White" : "Black")}
+          </h3>
+
           {!matchId && (
             <div>
               <CreateMatch
@@ -327,12 +350,14 @@ export function Play() {
                 onGameModeSelect={setGameMode}
                 setUsernames={setUsernames}
                 setMatchId={setMatchId}
+                setIsWhitePiece={setIsWhitePiece}
               />
 
               <JoinMatch
                 setUsernames={setUsernames}
                 setMatchId={setMatchId}
                 setDisableBoard={setDisableBoard}
+                setIsWhitePiece={setIsWhitePiece}
               />
             </div>
           )}
