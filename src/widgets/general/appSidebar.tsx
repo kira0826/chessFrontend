@@ -12,7 +12,7 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
+import { DropdownMenuContent, DropdownMenuItem } from "../../components/ui/dropdown-menu";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { clearUser } from "@/features/user/userSlice";
@@ -24,11 +24,11 @@ const notLoggedIn = [
 ];
 
 const loggedInUser = [
-    { title: "Play", path: "/play", icon: Play },
+    { title: "Play", path: "play", icon: Play },
 ];
 
 const loggedInAdmin = [
-    { title: "Play", path: "/play", icon: Play },
+    { title: "Play", path: "play", icon: Play },
     { title: "Users", path: "#", icon: Users },
     { title: "Roles", path: "#", icon: ShieldAlert },
     { title: "Permissions", path: "#", icon: Settings },

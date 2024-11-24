@@ -14,18 +14,14 @@ import {
 import isValidMove from "@/validations/isValidMove";
 import StompService from "@/service/webSocketService";
 import { performMove } from "./playAux";
+import { GameMode } from "@/widgets/play/gameModeDropdown";
+import { CreateMatch } from "@/widgets/play/createMatch";
+import { JoinMatch } from "@/widgets/play/joinMatch";
+import { ShareCodeDialog } from "@/widgets/play/shareCodeDialog";
 
 export function Play() {
-
-
   //------------------States--------------------------
-
-  const [matchId, setMatchId] = useState<number>(0);
-
-
-
-
-
+  
   useEffect(() => {
     console.log("Connecting to websocket");
     console.log("Token: ", sessionStorage.getItem("token"))
@@ -45,6 +41,13 @@ export function Play() {
     });
 
   }, [])
+
+  const [gameMode, setGameMode] = useState<GameMode | null>(null);
+  const [usernames, setUsernames] = useState<string[]>([]);
+  const [plays, setPlays] = useState<unknown[]>([]);
+  const [matchData, setMatchData] = useState<Map<string, string>>(new Map());
+  const [matchId, setMatchId] = useState<number | null>(null);
+
 
   const [boardSetup, setBoardSetup] = useState<(Cell | null)[][]>(
     initialBoardSetup()
@@ -225,8 +228,35 @@ export function Play() {
 
       <section className="flex flex-col h-5/6 w-1/3 bg-gray-200">
 
-      <input type="text" value={matchId} onChange={(e) => setMatchId(parseInt(e.target.value))} />
-    
+        <div className="p-8">
+          {!matchId && (
+            <div>
+              <CreateMatch
+                selectedGameMode={gameMode}
+                onGameModeSelect={setGameMode}
+                setUsernames={setUsernames}
+                setPlays={setPlays}
+                setMatchData={setMatchData}
+                setMatchId={setMatchId}
+              />
+
+              <JoinMatch 
+              setUsernames={setUsernames}
+              setPlays={setPlays}
+              setMatchData={setMatchData}
+              setMatchId={setMatchId}
+              />
+            </div>
+          )}
+
+          {matchId && (
+            <div>
+              <h2>Match #{matchId}</h2>
+              <p>Players: {usernames.join(", ")}</p>
+              {usernames.length != 2 && <ShareCodeDialog code={matchId}/> } 
+            </div>
+          )}
+        </div>
 
       </section>
 
@@ -237,6 +267,7 @@ export function Play() {
           setOpen={setOpenCoronation}
           open={openCoronation}
         />
+
       )}
     </div>
   );
