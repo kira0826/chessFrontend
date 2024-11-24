@@ -4,6 +4,7 @@ import { Play } from "./pages/play/play";
 import { Profile } from "./pages/profile/Profile";
 import { Analysis } from "./pages";
 import { Recreation } from "./pages";
+import ProtectedRoute from "./features/user/manageRoutes";
 
 
 
@@ -25,7 +26,11 @@ export const routes = [
       {
         name: "play main",
         path: "/",
-        element: <Play />
+        element: 
+        <ProtectedRoute>
+        <Play />      
+        </ProtectedRoute>
+
       },
     ],
   },
@@ -36,7 +41,9 @@ export const routes = [
       {
         name: "profile main",
         path: "/:username",
-        element: <Profile />,
+        element:  
+        <Profile />
+
       },
     ],
   },
