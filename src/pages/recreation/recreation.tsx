@@ -196,7 +196,6 @@ export function Recreation() {
       const to = parsePosition(move.destination);
       const isWhite = determinePieceColor(i);
       const piece = getPieceFromPosition(currentBoard, from.row, from.col);
-
       if (piece && piece.isWhite === isWhite) {
         currentBoard = performMove(
           currentBoard,
