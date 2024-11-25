@@ -1,13 +1,9 @@
-import {
-  LogIn,
-  UserPlus,
-  Play,
-  User,
-  Users,
-  Settings,
-  ShieldAlert,
-  ChevronUp,
-} from "lucide-react";
+import logo from "/public/logo.png";
+import logoMini from "/public/logoMini.png";
+
+
+import { LogIn, UserPlus, Play, User, Users, Settings, ShieldAlert, ChevronUp } from "lucide-react";
+
 import {
   Sidebar,
   SidebarContent,
@@ -31,8 +27,8 @@ import { clearUser } from "@/features/user/userSlice";
 import { Link, useNavigate } from "react-router-dom";
 
 const notLoggedIn = [
-  { title: "Log In", path: "auth/sign-in", icon: LogIn },
-  { title: "Sign Up", path: "#", icon: UserPlus },
+    { title: "Log In", path: "/auth/sign-in", icon: LogIn },
+    { title: "Sign Up", path: "#", icon: UserPlus },
 ];
 
 const loggedInUser = [{ title: "Play", path: "/play", icon: Play }];
@@ -68,23 +64,15 @@ export function AppSidebar() {
     navigate("/");
   };
 
-  return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        {state === "collapsed" ? (
-          <img
-            src="/chessFront/logoMini.png"
-            alt="Small Logo"
-            className="w-8 h-8 p-2"
-          />
-        ) : (
-          <img
-            src="/chessFront/logo.png"
-            alt="Full Logo"
-            className="w-full h-auto p-4"
-          />
-        )}
-      </SidebarHeader>
+    return (
+        <Sidebar collapsible="icon">
+            <SidebarHeader>
+                {state === "collapsed" ? (
+                    <img src={logoMini} alt="Small Logo" className="w-8 h-8 p-2" />
+                ) : (
+                    <img src={logo} alt="Full Logo" className="w-full h-auto p-4" />
+                )}
+            </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>

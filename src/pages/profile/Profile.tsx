@@ -21,6 +21,7 @@ import apiClient from "@/service/apiClient";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUser } from "@/features/user/userSlice";
 import { RootState } from "@/store";
+import type { Match } from "../../widgets/chess/types";
 
 interface User {
   username: string;
@@ -30,21 +31,11 @@ interface User {
   elo: number;
 }
 
-interface Match {
-  date: string;
-  opponent: string;
-  result: "win" | "lose";
-}
-
 export function Profile() {
   const { username } = useParams<{ username: string }>();
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
-  const [matches] = useState<Match[]>([
-    { date: "2023-10-05", opponent: "opponent1", result: "win" },
-    { date: "2023-10-03", opponent: "opponent2", result: "lose" },
-    { date: "2023-10-01", opponent: "opponent3", result: "win" },
-  ]);
+  const [matches, setMatches] = useState<Match[] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editedUser, setEditedUser] = useState<User | null>(null);
   const currentUser = useSelector((state: RootState) => state.user);
@@ -63,6 +54,22 @@ export function Profile() {
 
     fetchUserData();
   }, [username]);
+
+
+  useEffect(() => {
+    const fetchMatchesData = async () => {
+      try {
+        const response = await apiClient.get(`api/matches/user/${username}/matches`);
+        setMatches(response.data);
+        console.log(response.data)
+      } catch (error) {
+        console.error("Failed to fetch matches data:", error);
+      }
+    };
+
+    fetchMatchesData();
+  },[username]);
+
 
   const handleEditClick = () => {
     setIsModalOpen(true);
@@ -90,7 +97,7 @@ export function Profile() {
     try {
       await apiClient.patch(`api/users/${username}`, editedUser);
       setUser(editedUser);
-
+  
       if (editedUser && user && currentUser.username === user.username) {
         dispatch(
           updateUser({
@@ -100,7 +107,7 @@ export function Profile() {
           })
         );
       }
-
+  
       handleCloseModal();
       navigate(`/profile/${editedUser?.username}`);
     } catch (error) {
@@ -111,11 +118,6 @@ export function Profile() {
   const canEdit =
     currentUser.username === user?.username ||
     currentUser.roles.includes("ADMIN");
-
-  const calculateWinRate = () => {
-    const wins = matches.filter((match) => match.result === "win").length;
-    return ((wins / matches.length) * 100).toFixed(1);
-  };
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">
@@ -166,7 +168,7 @@ export function Profile() {
                     <div className="flex items-center space-x-3 p-3 bg-primary/5 rounded-lg">
                       <Trophy className="w-5 h-5 text-primary" />
                       <span className="text-sm">
-                        Win Rate: {calculateWinRate()}%
+                        Win Rate: quemado%
                       </span>
                     </div>
                   </div>
@@ -185,51 +187,34 @@ export function Profile() {
           </Card>
         </div>
 
-        {/* Match History */}
-        <div className="lg:col-span-8">
-          <Card className="h-full">
-            <CardHeader>
-              <h3 className="text-xl font-semibold flex items-center space-x-2">
-                <Clock className="w-5 h-5" />
-                <span>Match History</span>
-              </h3>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {matches.map((match, index) => (
-                  <Link to={`/match/${index}`} key={index}>
-                    <Card className="hover:shadow-lg transition-all duration-300 border border-primary/10">
-                      <div className="p-4 flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div
-                            className={`p-2 rounded-full ${
-                              match.result === "win"
-                                ? "bg-green-100"
-                                : "bg-red-100"
-                            }`}
-                          >
-                            {match.result === "win" ? (
-                              <Trophy className="w-6 h-6 text-green-500" />
-                            ) : (
-                              <XCircle className="w-6 h-6 text-red-500" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-medium">vs. {match.opponent}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {match.date}
-                            </p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold mb-4">Match History</h3>
+          <div className="space-y-4">
+            {matches && matches.map((match, index) => (
+              <Link to={`/match/${match.id}`} key={index}>
+                <Card className="p-4 shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        <strong>Date:</strong> {match.createdDate}
+                      </p>
+                      <p className="text-sm">
+                        <strong>Game Mode:</strong> {match.gameModeName}
+                      </p>
+                      <p className="text-sm">
+                        <strong>Players:</strong> {match.usernames.join(", ")}
+                      </p>
+
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
+
+
+
       </div>
 
       {/* Edit Modal */}

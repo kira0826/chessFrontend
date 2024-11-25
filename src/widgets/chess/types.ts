@@ -34,3 +34,22 @@ export interface LastMove {
   toRow: number;
   toCol: number;
 }
+
+export interface Match {
+  id: number;
+  createdDate: string;
+  gameModeName: string;
+  usernames: string[];
+  plays: Play[];
+}
+
+export interface Play {
+  id: number;
+  origin: string;         
+  destination: string;   
+  sequenceNumber: number;
+  timestamp: string;     
+  gain: number;         
+  matchId: number;        
+  chessCardId: number;    
+}

@@ -3,7 +3,8 @@ import { Home } from "./pages/home/home";
 import { Play } from "./pages/play/play";
 import { Profile } from "./pages/profile/Profile";
 import { Analysis } from "./pages";
-import { Recreation } from "./pages/recreation/recreation";
+import ProtectedRoute from "./features/user/manageRoutes";
+import { Match } from "./pages/match/match";
 
 
 
@@ -25,7 +26,11 @@ export const routes = [
       {
         name: "play main",
         path: "/",
-        element: <Play />
+        element: 
+        <ProtectedRoute>
+        <Play />      
+        </ProtectedRoute>
+
       },
     ],
   },
@@ -36,10 +41,30 @@ export const routes = [
       {
         name: "profile main",
         path: "/:username",
-        element: <Profile />,
+        element:  
+        <ProtectedRoute>
+         <Profile />
+        </ProtectedRoute>
       },
     ],
   },
+
+  {
+    layout: "match",
+    pages: [
+      {
+        name: "match",
+        path: "/:matchId",
+        element:  
+        <ProtectedRoute>
+          <Match />
+        </ProtectedRoute>
+        
+
+      },
+    ],
+  },
+
   {
     layout: "auth",
     pages: [
@@ -59,15 +84,5 @@ export const routes = [
         element: <Analysis/>
       },
     ],
-  },
-  {
-    layout: "recreation",
-    pages: [
-      {
-        name: "recreation main",
-        path: "/",
-        element: <Recreation/>
-      },
-    ],
-  },
+  }
 ];
