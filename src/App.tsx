@@ -3,7 +3,6 @@ import { PlayLayout } from "./layout/playLayout";
 import { ProfileLayout } from "./layout/profileLayout";
 import { AuthLayout } from "./layout/authLayout";
 import { HomeLayout } from "./layout/homeLayout";
-import { AnalysisLayout } from "./layout";
 import { MatchLayout } from "./layout/matchLayout";
 
 function App() {
@@ -13,7 +12,6 @@ function App() {
     <Route path="/match/*" element={<MatchLayout/>} />
     <Route path="/profile/*" element={<ProfileLayout/>} />
     <Route path="/auth/*" element={<AuthLayout/>} />
-    <Route path="/analysis/*" element={<AnalysisLayout/>} />
     <Route path="/*" element={<HomeLayout/>} />
   </Routes>
   );

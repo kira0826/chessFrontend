@@ -25,7 +25,7 @@ export function Match() {
 
             fetchMatchData();
         }
-    });
+    },[matchId]);
 
     return (
 

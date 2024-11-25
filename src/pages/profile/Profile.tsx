@@ -59,7 +59,7 @@ export function Profile() {
   useEffect(() => {
     const fetchMatchesData = async () => {
       try {
-        const response = await apiClient.get(`api/users/${username}/matches`);
+        const response = await apiClient.get(`api/matches/user/${username}/matches`);
         setMatches(response.data);
         console.log(response.data)
       } catch (error) {
@@ -68,7 +68,7 @@ export function Profile() {
     };
 
     fetchMatchesData();
-  });
+  },[username]);
 
 
   const handleEditClick = () => {
@@ -187,7 +187,7 @@ export function Profile() {
           </Card>
         </div>
 
-        <div className="mt-8 lg:mt-0 lg:w-1/2">
+        <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4">Match History</h3>
           <div className="space-y-4">
             {matches && matches.map((match, index) => (
