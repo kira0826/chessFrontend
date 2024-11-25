@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Trophy,
-  XCircle,
-  User,
-  Mail,
-  Star,
-  Clock,
-  ChevronRight,
-} from "lucide-react";
+import { Trophy, User, Mail, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -55,21 +47,21 @@ export function Profile() {
     fetchUserData();
   }, [username]);
 
-
   useEffect(() => {
     const fetchMatchesData = async () => {
       try {
-        const response = await apiClient.get(`api/matches/user/${username}/matches`);
+        const response = await apiClient.get(
+          `api/matches/user/${username}/matches`
+        );
         setMatches(response.data);
-        console.log(response.data)
+        console.log(response.data);
       } catch (error) {
         console.error("Failed to fetch matches data:", error);
       }
     };
 
     fetchMatchesData();
-  },[username]);
-
+  }, [username]);
 
   const handleEditClick = () => {
     setIsModalOpen(true);
@@ -97,7 +89,7 @@ export function Profile() {
     try {
       await apiClient.patch(`api/users/${username}`, editedUser);
       setUser(editedUser);
-  
+
       if (editedUser && user && currentUser.username === user.username) {
         dispatch(
           updateUser({
@@ -107,7 +99,7 @@ export function Profile() {
           })
         );
       }
-  
+
       handleCloseModal();
       navigate(`/profile/${editedUser?.username}`);
     } catch (error) {
@@ -167,9 +159,7 @@ export function Profile() {
                     </div>
                     <div className="flex items-center space-x-3 p-3 bg-primary/5 rounded-lg">
                       <Trophy className="w-5 h-5 text-primary" />
-                      <span className="text-sm">
-                        Win Rate: quemado%
-                      </span>
+                      <span className="text-sm">Play to Improve!</span>
                     </div>
                   </div>
                 </>
@@ -187,34 +177,31 @@ export function Profile() {
           </Card>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 lg:col-span-8">
           <h3 className="text-xl font-semibold mb-4">Match History</h3>
           <div className="space-y-4">
-            {matches && matches.map((match, index) => (
-              <Link to={`/match/${match.id}`} key={index}>
-                <Card className="p-4 shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        <strong>Date:</strong> {match.createdDate}
-                      </p>
-                      <p className="text-sm">
-                        <strong>Game Mode:</strong> {match.gameModeName}
-                      </p>
-                      <p className="text-sm">
-                        <strong>Players:</strong> {match.usernames.join(", ")}
-                      </p>
-
+            {matches &&
+              matches.map((match, index) => (
+                <Link to={`/match/${match.id}`} key={index}>
+                  <Card className="p-4 shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300 mb-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          <strong>Date:</strong> {match.createdDate}
+                        </p>
+                        <p className="text-sm">
+                          <strong>Game Mode:</strong> {match.gameModeName}
+                        </p>
+                        <p className="text-sm">
+                          <strong>Players:</strong> {match.usernames.join(", ")}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
+                  </Card>
+                </Link>
+              ))}
           </div>
         </div>
-
-
-
       </div>
 
       {/* Edit Modal */}

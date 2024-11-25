@@ -1,8 +1,16 @@
 import logo from "/public/logo.png";
 import logoMini from "/public/logoMini.png";
 
-
-import { LogIn, UserPlus, Play, User, Users, Settings, ShieldAlert, ChevronUp } from "lucide-react";
+import {
+  LogIn,
+  UserPlus,
+  Play,
+  User,
+  Users,
+  Settings,
+  ShieldAlert,
+  ChevronUp,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -20,15 +28,18 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { clearUser } from "@/features/user/userSlice";
 import { Link, useNavigate } from "react-router-dom";
 
 const notLoggedIn = [
-    { title: "Log In", path: "/auth/sign-in", icon: LogIn },
-    { title: "Sign Up", path: "#", icon: UserPlus },
+  { title: "Log In", path: "/auth/sign-in", icon: LogIn },
+  { title: "Sign Up", path: "/chessBack/register", icon: UserPlus },
 ];
 
 const loggedInUser = [{ title: "Play", path: "/play", icon: Play }];
@@ -49,7 +60,7 @@ export function AppSidebar() {
   let items;
 
   if (!user || !user.roles) {
-    items = notLoggedIn; 
+    items = notLoggedIn;
   } else if (user.roles.length === 0) {
     items = notLoggedIn;
   } else if (user.roles.includes("ADMIN")) {
@@ -64,15 +75,15 @@ export function AppSidebar() {
     navigate("/");
   };
 
-    return (
-        <Sidebar collapsible="icon">
-            <SidebarHeader>
-                {state === "collapsed" ? (
-                    <img src={logoMini} alt="Small Logo" className="w-8 h-8 p-2" />
-                ) : (
-                    <img src={logo} alt="Full Logo" className="w-full h-auto p-4" />
-                )}
-            </SidebarHeader>
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader onClick={() => navigate("/")}>
+        {state === "collapsed" ? (
+          <img src={logoMini} alt="Small Logo" className="w-8 h-8 p-2" />
+        ) : (
+          <img src={logo} alt="Full Logo" className="w-full h-auto p-4" />
+        )}
+      </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
