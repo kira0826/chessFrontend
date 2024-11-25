@@ -11,6 +11,7 @@ const MatchInfo: React.FC<MatchInfoProps> = ({
   elo,
   profilePicture,
 }) => {
+  console.log("MatchInfo", username, elo, profilePicture);
   return (
     <div className="flex flex-row  justify-between items-center w-full h-12">
       <main className=" flex flex-row items-center justify-center ">
@@ -26,7 +27,7 @@ const MatchInfo: React.FC<MatchInfoProps> = ({
         <h1 className="scroll-m-20 text-xl font-semibold tracking-tight mr-2">
           {username}
         </h1>
-        <h2 className="text-sm text-muted-foreground">{`(${elo})`}</h2>
+        {/* <h2 className="text-sm text-muted-foreground">{`(${elo})`}</h2> */}
       </main>
 
       <Timer time="3:16" />

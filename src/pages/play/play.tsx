@@ -29,6 +29,7 @@ import {
   type ValidatorResponse,
 } from "./types";
 import updateMatchData from "@/service/apiConsumer";
+import { useNavigate } from "react-router-dom";
 
 export function Play() {
   //------------------States--------------------------
@@ -45,6 +46,7 @@ export function Play() {
   );
   const [isWhitePiece, setIsWhitePiece] = useState<boolean>(true);
 
+  const navigate = useNavigate();
   //Suscribe to topic based on matchId
 
   useEffect(() => {
@@ -334,7 +336,7 @@ export function Play() {
   return (
     <div className="flex flex-row justify-center mx-auto items-center h-full w-11/12 space-x-12">
       <main className="flex flex-col justify-center items-center h-5/6 w-2/4 space-y-2">
-        <MatchInfo username="AleLonber" elo={1200} profilePicture="" />
+        <MatchInfo username={usernames[1]} elo={0} profilePicture="" />
 
         <Board
           disableBoard={disableBoard}
@@ -351,7 +353,7 @@ export function Play() {
           isWhitePlayer={isWhitePiece}
         />
 
-        <MatchInfo username="Zai0826" elo={300} profilePicture="" />
+        <MatchInfo username={usernames[0]} elo={0} profilePicture="" />
       </main>
 
       <section className="flex flex-col h-5/6 w-1/3 ">
@@ -410,7 +412,10 @@ export function Play() {
       {gameFinished && (
         <VictoryPopup
           message={infoGame}
-          onClose={() => setGameFinished(false)}
+          onClose={() => {
+            setGameFinished(false);
+            navigate("/");
+          }}
         />
       )}
     </div>
