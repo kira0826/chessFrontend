@@ -1,11 +1,12 @@
-import { PieceType,  Piece } from "@/widgets";
+import { PieceType, Piece } from "@/widgets";
 import { Cell } from "@/widgets/chess/types";
-import {type LastMove } from "@/widgets/chess/types";
+import { type LastMove } from "@/widgets/chess/types";
 import isValidRookMove from "./isValidRookMove";
 import isValidKnightMove from "./isValidKnightMove";
 import isValidBishopMove from "./isValidBishop";
 import isValidKingMove from "./isValidKingMove";
 import isValidPawnMove from "./isValidPawnMove";
+import doesMoveProtectKing from "./doesProtectKing";
 
 function isValidMove(
   piece: Piece,
@@ -18,13 +19,13 @@ function isValidMove(
   ignoreKingSafety: boolean = false,
   isCheckingAttack: boolean = false
 ): boolean {
-  // Movement inside the board
+  // Movimiento dentro del tablero
   if (toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7) {
     return false;
   }
 
   if (fromRow === toRow && fromCol === toCol) {
-    return false; // Can not move to the same cell
+    return false; 
   }
 
   const destinationCell = board[toRow][toCol];
@@ -33,20 +34,15 @@ function isValidMove(
     destinationCell.piece &&
     destinationCell.piece.isWhite === piece.isWhite
   ) {
-    return false; // Can not consume a piece of the same color
+    return false; 
   }
 
-  if (
-    destinationCell &&
-    destinationCell.piece &&
-    destinationCell.piece.type === PieceType.KING
-  ) {
-    return false; // Can not consume the king
-  }
+ 
 
+  let isValid: boolean;
   switch (piece.type) {
     case PieceType.PAWN:
-      return isValidPawnMove(
+      isValid = isValidPawnMove(
         piece,
         fromRow,
         fromCol,
@@ -56,14 +52,18 @@ function isValidMove(
         lastMove,
         isCheckingAttack
       );
+      break;
     case PieceType.ROOK:
-      return isValidRookMove(fromRow, fromCol, toRow, toCol, board);
+      isValid = isValidRookMove(fromRow, fromCol, toRow, toCol, board);
+      break;
     case PieceType.KNIGHT:
-      return isValidKnightMove(fromRow, fromCol, toRow, toCol);
+      isValid = isValidKnightMove(fromRow, fromCol, toRow, toCol);
+      break;
     case PieceType.BISHOP:
-      return isValidBishopMove(fromRow, fromCol, toRow, toCol, board);
+      isValid = isValidBishopMove(fromRow, fromCol, toRow, toCol, board);
+      break;
     case PieceType.KING:
-      return isValidKingMove(
+      isValid = isValidKingMove(
         piece,
         fromRow,
         fromCol,
@@ -72,15 +72,26 @@ function isValidMove(
         board,
         ignoreKingSafety
       );
+      break;
     case PieceType.QUEEN:
-      return (
+      isValid =
         isValidBishopMove(fromRow, fromCol, toRow, toCol, board) ||
-        isValidRookMove(fromRow, fromCol, toRow, toCol, board)
-      );
-
+        isValidRookMove(fromRow, fromCol, toRow, toCol, board);
+      break;
     default:
-      return false;
+      isValid = false;
   }
+
+  if (!isValid) {
+    return false;
+  }
+
+
+  const isKingProtected = doesMoveProtectKing(piece, fromRow, fromCol, toRow, toCol, board); 
+
+  console.log("isKingProtected", isKingProtected);
+
+  return isKingProtected
 }
 
 export default isValidMove;
