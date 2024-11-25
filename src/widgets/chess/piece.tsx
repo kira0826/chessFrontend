@@ -5,7 +5,7 @@ import { pieceImages } from './pieceImages';
 export interface Piece {
   isWhite: boolean;
   type: PieceType;
-} 
+}     
 
 interface PieceProps {
   isWhite: boolean;

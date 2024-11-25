@@ -10,35 +10,124 @@ import { PieceType } from "@/widgets";
 import { isKingInCheck, isPromotion } from "@/widgets/chess/boardAuxFunctions";
 import isValidMove from "@/validations/isValidMove";
 import StompService from "@/service/webSocketService";
-import { performMove } from "./playAux";
+import {
+  getPieceTypeNumber,
+  matrixToChessNotation,
+  performMove,
+  updateBoardWithChanges,
+} from "./playAux";
+import { GameMode } from "@/widgets/play/gameModeDropdown";
+import { CreateMatch } from "@/widgets/play/createMatch";
+import { JoinMatch } from "@/widgets/play/joinMatch";
+import { ShareCodeDialog } from "@/widgets/play/shareCodeDialog";
+import {
+  isMessageType1,
+  isMessageType2,
+  type MatchDTO,
+  type PieceDTO,
+  type ValidatorResponse,
+} from "./types";
+import updateMatchData from "@/service/apiConsumer";
 
 export function Play() {
-  const getWebSocketUrl = () => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const hostname = window.location.hostname;
-    const port = window.location.port ? `:${window.location.port}` : "";
-    console.log(`${protocol}//${hostname}${port}/chessBack/ws-connect`);
-    return `${protocol}//${hostname}${port}/chessBack/ws-connect`;
-  };
   //------------------States--------------------------
+
+  const [gameMode, setGameMode] = useState<GameMode | null>(null);
+  const [usernames, setUsernames] = useState<string[]>([]);
+  const [matchId, setMatchId] = useState<number | null>(null);
+  const [disableBoard, setDisableBoard] = useState<boolean>(true);
+  const [sequenceNumber, setSequenceNumber] = useState<number>(0);
+  const [boardSetup, setBoardSetup] = useState<(Cell | null)[][]>(
+    initialBoardSetup()
+  );
+  const [isWhitePiece, setIsWhitePiece] = useState<boolean>(true);
+
+  //Suscribe to topic based on matchId
 
   useEffect(() => {
     console.log("Connecting to websocket");
     console.log("Token: ", sessionStorage.getItem("token"));
     const service = new StompService();
 
-    const url = getWebSocketUrl();
-    console.log("URL for deploy: ", url);
+    if (matchId) {
+      service.connect("/ws-connect-js", () => {
+        console.log("Connect using vite proxy");
 
-    service.connect("/ws-connect-js", () => {
-      // console.log("Connect using url: ", url);
-      console.log("Connected to using proxy");
-    });
-  }, []);
+        service.subscribe(`/playTo/${matchId}`, (message) => {
+          //------------------Handle message from topic--------------------------
 
-  const [boardSetup, setBoardSetup] = useState<(Cell | null)[][]>(
-    initialBoardSetup()
-  );
+          console.log("Received message on suscribre function: ", message);
+
+          //------------------Handle message type #1--------------------------
+
+          if (isMessageType1(message)) {
+            const castedMessage = message as { message: string };
+            console.log("Message Type 1: ", castedMessage.message);
+
+            if (castedMessage.message) {
+              setUsernames(castedMessage.message.split(","));
+              setDisableBoard(false);
+            }
+          }
+
+          console.log("Is message type 2: ", isMessageType2(message));
+
+          //------------------Handle message type #2--------------------------
+
+          if (isMessageType2(message)) {
+            console.log("On message type 2: ", message);
+
+            const { match: matchData, validatorResponse } = message as {
+              match: MatchDTO;
+              validatorResponse: ValidatorResponse;
+            } as {
+              match: MatchDTO;
+              validatorResponse: ValidatorResponse;
+            };
+
+            console.log("Match Data: ", matchData);
+
+            //Match data is a map with the position of the pieces
+
+            const matchDataMap = new Map<string, PieceDTO>(
+              Object.entries(matchData.matchData)
+            );
+
+            //get last play sequence number from matchData
+            const lastPlay: number =
+              matchData.plays[matchData.plays.length - 1].sequenceNumber;
+
+            setSequenceNumber(lastPlay);
+
+            setBoardSetup(
+              updateBoardWithChanges(
+                boardSetup,
+                matchDataMap,
+                matchData.plays[matchData.plays.length - 1]
+              )
+            );
+
+            console.log("Validator Response: ", validatorResponse);
+
+            if (validatorResponse.isValid) {
+              console.log(
+                `Validation succeeded: ${validatorResponse.validationIdentifier}`
+              );
+            } else {
+              console.error(
+                `Validation failed: ${validatorResponse.validationIdentifier}`
+              );
+            }
+          }
+        });
+      });
+    }
+
+    return () => {
+      service.disconnect();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchId]);
 
   const [openCoronation, setOpenCoronation] = useState<boolean>(false);
 
@@ -81,6 +170,8 @@ export function Play() {
       toCol: toCol,
     });
   };
+
+  //------------------Promotion handlers--------------------------
 
   const handlePromotion = (promotedPieceType: PieceType) => {
     if (pendingPromotion) {
@@ -127,7 +218,15 @@ export function Play() {
         piece &&
         isValidMove(piece, fromRow, fromCol, toRow, toCol, boardSetup, lastMove)
       ) {
-        // Realizar el movimiento
+        const cardType: PieceType | undefined =
+          boardSetup[fromRow][fromCol]?.piece?.type;
+
+        let chessCardId: number | null = 0;
+
+        if (cardType) {
+          chessCardId = getPieceTypeNumber(cardType);
+        }
+
         const newBoard = performMove(
           boardSetup,
           piece,
@@ -146,9 +245,9 @@ export function Play() {
 
         // Verificar promoción
         if (isPromotion(piece, toRow)) {
-          // Abrir el modal de promoción
+          //Patch match data based on the move with promotion
+
           setOpenCoronation(true);
-          // Guardar la promoción pendiente
           setPendingPromotion({
             board: newBoard,
             piece,
@@ -158,7 +257,23 @@ export function Play() {
             toCol,
           });
         } else {
-          // Actualizar el estado del tablero
+          //Patch match data based on the move
+          const now = new Date();
+          if (matchId !== null && chessCardId !== null) {
+            const result = updateMatchData(matchId, {
+              origin: matrixToChessNotation(fromRow, fromCol),
+              destination: matrixToChessNotation(toRow, toCol),
+              sequenceNumber: sequenceNumber + 1,
+              timestamp: now.toISOString(),
+              gain: 0,
+              matchId: matchId,
+              chessCardId: chessCardId,
+            });
+
+            setSequenceNumber((prev) => prev + 1);
+            console.log("Result on patch: ", result);
+          }
+
           updateBoardState(newBoard, piece, fromRow, fromCol, toRow, toCol);
         }
       } else {
@@ -168,6 +283,8 @@ export function Play() {
       setDraggedPiece(null);
     }
   };
+
+  //------------------Calculate possible moves--------------------------
 
   const calculatePossibleMoves = (row: number, col: number) => {
     const piece = boardSetup[row][col]?.piece;
@@ -193,6 +310,7 @@ export function Play() {
       }
     }
 
+
     return moves;
   };
 
@@ -202,17 +320,59 @@ export function Play() {
         <MatchInfo username="AleLonber" elo={1200} profilePicture="" />
 
         <Board
+          disableBoard={disableBoard}
           boardRepesentation={boardSetup}
           openCoronation={openCoronation}
           handleDrop={handleDrop}
-          handleDragStart={handleDragStart}
+          handleDragStart={((isWhitePiece && sequenceNumber % 2 == 0 )|| (!isWhitePiece && sequenceNumber % 2 != 0)) ?  handleDragStart : () => {}}
           possibleMoves={possibleMoves}
+          isWhitePlayer={isWhitePiece}
         />
 
         <MatchInfo username="Zai0826" elo={300} profilePicture="" />
       </main>
 
-      <section className="flex flex-col h-5/6 w-1/3 bg-gray-200"></section>
+      <section className="flex flex-col h-5/6 w-1/3 ">
+        <div className="p-8">
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            {isWhitePiece ? "You're white player, yeahh" : "You're black as shit joe"} 
+          </h3>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            {`Sequenece Number: ${sequenceNumber}`}
+          </h3>
+
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            {`Turn of: ` + (sequenceNumber % 2 === 0 ? "White" : "Black")}
+          </h3>
+
+          {!matchId && (
+            <div>
+              <CreateMatch
+                selectedGameMode={gameMode}
+                onGameModeSelect={setGameMode}
+                setUsernames={setUsernames}
+                setMatchId={setMatchId}
+                setIsWhitePiece={setIsWhitePiece}
+              />
+
+              <JoinMatch
+                setUsernames={setUsernames}
+                setMatchId={setMatchId}
+                setDisableBoard={setDisableBoard}
+                setIsWhitePiece={setIsWhitePiece}
+              />
+            </div>
+          )}
+
+          {matchId && (
+            <div>
+              <h2>Match #{matchId}</h2>
+              <p>Players: {usernames.join(", ")}</p>
+              {usernames.length != 2 && <ShareCodeDialog code={matchId} />}
+            </div>
+          )}
+        </div>
+      </section>
 
       {openCoronation && (
         <Coronation
@@ -225,3 +385,4 @@ export function Play() {
     </div>
   );
 }
+
