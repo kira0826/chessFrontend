@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Play } from '@/models/types';
+import { Play } from "./types";
 
 interface MoveNavigationProps {
   plays: Play[];
@@ -24,11 +24,11 @@ const MoveNavigation: React.FC<MoveNavigationProps> = ({
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
-        
+
         <span className="font-medium">
           Move {currentMoveIndex + 1} / {plays.length}
         </span>
-        
+
         <button
           onClick={() => onMoveSelect(currentMoveIndex + 1)}
           disabled={currentMoveIndex === plays.length - 1}
@@ -54,19 +54,21 @@ const MoveNavigation: React.FC<MoveNavigationProps> = ({
                 <td className="py-2 pl-4">{i + 1}.</td>
                 <td
                   className={`py-2 cursor-pointer ${
-                    currentMoveIndex === i * 2 ? 'bg-blue-200' : ''
+                    currentMoveIndex === i * 2 ? "bg-blue-200" : ""
                   }`}
                   onClick={() => plays[i * 2] && onMoveSelect(i * 2)}
                 >
-                  {plays[i * 2]?.origin + '-' + plays[i * 2]?.destination}
+                  {plays[i * 2]?.origin + "-" + plays[i * 2]?.destination}
                 </td>
                 <td
                   className={`py-2 cursor-pointer ${
-                    currentMoveIndex === i * 2 + 1 ? 'bg-blue-200' : ''
+                    currentMoveIndex === i * 2 + 1 ? "bg-blue-200" : ""
                   }`}
                   onClick={() => plays[i * 2 + 1] && onMoveSelect(i * 2 + 1)}
                 >
-                  {plays[i * 2 + 1]?.origin + '-' + plays[i * 2 + 1]?.destination}
+                  {plays[i * 2 + 1]?.origin +
+                    "-" +
+                    plays[i * 2 + 1]?.destination}
                 </td>
               </tr>
             ))}
