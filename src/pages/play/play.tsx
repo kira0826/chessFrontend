@@ -49,14 +49,22 @@ export function Play() {
   const navigate = useNavigate();
   //Suscribe to topic based on matchId
 
+  const getWebSocketUrl = () => {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const hostname = window.location.hostname;
+    const port = window.location.port ? `:${window.location.port}` : "";
+    console.log(`${protocol}//${hostname}${port}/chessBack/ws-connect`);
+    return `${protocol}//${hostname}${port}/chessBack/ws-connect`;
+  };
+
   useEffect(() => {
     console.log("Connecting to websocket");
     console.log("Token: ", sessionStorage.getItem("token"));
     const service = new StompService();
-
+    const url = getWebSocketUrl();
     if (matchId) {
-      service.connect("/ws-connect-js", () => {
-        console.log("Connect using vite proxy");
+      service.connect(url, () => {
+        console.log("Connect using url ", url);
 
         service.subscribe(`/playTo/${matchId}`, (message) => {
           //------------------Handle message from topic--------------------------

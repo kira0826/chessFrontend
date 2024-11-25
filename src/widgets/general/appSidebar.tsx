@@ -94,7 +94,8 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     {item.title === "Users" ||
                     item.title === "Roles" ||
-                    item.title === "Permissions" ? (
+                    item.title === "Permissions" ||
+                    item.title === "Sign Up" ? (
                       <a href={item.path}>
                         <item.icon />
                         <span>{item.title}</span>
