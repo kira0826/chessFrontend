@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/ws-connect-js": {
-        target: "ws://localhost:8081",
+        target: "ws://localhost:8081/chessBack",
         ws: true,
         changeOrigin: true,
       },

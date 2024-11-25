@@ -16,27 +16,28 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuContent, DropdownMenuItem } from "../../components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { clearUser } from "@/features/user/userSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const notLoggedIn = [
     { title: "Log In", path: "/auth/sign-in", icon: LogIn },
     { title: "Sign Up", path: "#", icon: UserPlus },
 ];
 
-const loggedInUser = [
-    { title: "Play", path: "/play", icon: Play },
-];
+const loggedInUser = [{ title: "Play", path: "/play", icon: Play }];
 
 const loggedInAdmin = [
-    { title: "Play", path: "/play", icon: Play },
-    { title: "Users", path: "#", icon: Users },
-    { title: "Roles", path: "#", icon: ShieldAlert },
-    { title: "Permissions", path: "#", icon: Settings },
+  { title: "Play", path: "/play", icon: Play },
+  { title: "Users", path: "/chessBack/login", icon: Users },
+  { title: "Roles", path: "/chessBack/login", icon: ShieldAlert },
+  { title: "Permissions", path: "/chessBack/login", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -47,7 +48,9 @@ export function AppSidebar() {
 
   let items;
 
-  if (user.roles.length === 0) {
+  if (!user || !user.roles) {
+    items = notLoggedIn; 
+  } else if (user.roles.length === 0) {
     items = notLoggedIn;
   } else if (user.roles.includes("ADMIN")) {
     items = loggedInAdmin;
@@ -71,59 +74,62 @@ export function AppSidebar() {
                 )}
             </SidebarHeader>
 
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {items.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                    <button
-                                            onClick={() => navigate(item.path)}
-                                            className="flex items-center gap-2"
-                                        >
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </button>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>  
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    {item.title === "Users" ||
+                    item.title === "Roles" ||
+                    item.title === "Permissions" ? (
+                      <a href={item.path}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    ) : (
+                      <Link to={item.path}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-            {user.roles.length > 0 && (
-                <SidebarFooter>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <SidebarMenuButton>
-                                        <User />  {user.username}
-                                        <ChevronUp className="ml-auto" />
-                                    </SidebarMenuButton>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    side="top"
-                                    className="w-[--radix-popper-anchor-width]"
-                                >
-                                    
-                                    <DropdownMenuItem
-                                        onClick={() => navigate(`/profile/${user.username}`)}
-                                    >
-                                        Profile
-                                    </DropdownMenuItem>
-                                    
-                                    <DropdownMenuItem onClick={handleLogout}>
-                                        <span>Sign out</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarFooter>
-            )}
-        </Sidebar>
-    );
+      {user?.roles?.length > 0 && (
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton>
+                    <User /> {user.username}
+                    <ChevronUp className="ml-auto" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side="top"
+                  className="w-[--radix-popper-anchor-width]"
+                >
+                  <Link to={`/profile/${user.username}`}>
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                  </Link>
+
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <span>Sign out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      )}
+    </Sidebar>
+  );
 }
