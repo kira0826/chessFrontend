@@ -10,6 +10,7 @@ import { PieceType } from "@/widgets";
 import { isKingInCheck, isPromotion } from "@/widgets/chess/boardAuxFunctions";
 import isValidMove from "@/validations/isValidMove";
 import StompService from "@/service/webSocketService";
+import VictoryPopup from "@/widgets/infoGame/infoGamePopup";
 import {
   getPieceTypeNumber,
   matrixToChessNotation,
@@ -32,6 +33,8 @@ import updateMatchData from "@/service/apiConsumer";
 export function Play() {
   //------------------States--------------------------
 
+  const [infoGame, setInfoGame] = useState<string>("");
+  const [gameFinished, setGameFinished] = useState<boolean>(false);
   const [gameMode, setGameMode] = useState<GameMode | null>(null);
   const [usernames, setUsernames] = useState<string[]>([]);
   const [matchId, setMatchId] = useState<number | null>(null);
@@ -85,6 +88,21 @@ export function Play() {
               validatorResponse: ValidatorResponse;
             };
 
+            if (!validatorResponse.isValid) {
+              const message = validatorResponse.validationIdentifier;
+
+              setInfoGame(message);
+
+              console.log("Message: ", message);
+              if (
+                message.startsWith("CheckMate") ||
+                message.startsWith("Draw") ||
+                message.startsWith("StaleMate")
+              ) {
+                setGameFinished(true);
+              }
+            }
+
             console.log("Match Data: ", matchData);
 
             //Match data is a map with the position of the pieces
@@ -126,7 +144,7 @@ export function Play() {
     return () => {
       service.disconnect();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
 
   const [openCoronation, setOpenCoronation] = useState<boolean>(false);
@@ -310,7 +328,6 @@ export function Play() {
       }
     }
 
-
     return moves;
   };
 
@@ -324,7 +341,12 @@ export function Play() {
           boardRepesentation={boardSetup}
           openCoronation={openCoronation}
           handleDrop={handleDrop}
-          handleDragStart={((isWhitePiece && sequenceNumber % 2 == 0 )|| (!isWhitePiece && sequenceNumber % 2 != 0)) ?  handleDragStart : () => {}}
+          handleDragStart={
+            (isWhitePiece && sequenceNumber % 2 == 0) ||
+            (!isWhitePiece && sequenceNumber % 2 != 0)
+              ? handleDragStart
+              : () => {}
+          }
           possibleMoves={possibleMoves}
           isWhitePlayer={isWhitePiece}
         />
@@ -335,7 +357,9 @@ export function Play() {
       <section className="flex flex-col h-5/6 w-1/3 ">
         <div className="p-8">
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-            {isWhitePiece ? "You're white player, yeahh" : "You're black as shit joe"} 
+            {isWhitePiece
+              ? "You're white player, yeahh"
+              : "You're black as shit joe"}
           </h3>
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
             {`Sequenece Number: ${sequenceNumber}`}
@@ -382,7 +406,13 @@ export function Play() {
           open={openCoronation}
         />
       )}
+
+      {gameFinished && (
+        <VictoryPopup
+          message={infoGame}
+          onClose={() => setGameFinished(false)}
+        />
+      )}
     </div>
   );
 }
-

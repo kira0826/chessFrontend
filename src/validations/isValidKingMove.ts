@@ -1,7 +1,8 @@
 import { Piece,  PieceType } from "@/widgets";
 import { Cell } from "@/widgets/chess/types";
-import isValidMove from "./isValidMove";
+import { isSquareUnderAttack } from "./isInCheck";
 
+import { areSquaresUnderAttack } from "./isInCheck";
 function isValidKingMove(
   piece: Piece,
   fromRow: number,
@@ -77,48 +78,6 @@ function isValidKingMove(
   return false;
 }
 
-export function areSquaresUnderAttack(
-  squares: { row: number; col: number }[],
-  isWhite: boolean,
-  board: (Cell | null)[][]
-): boolean {
-  // Iterate over all enemy pieces
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const cell = board[r][c];
-      if (cell && cell.piece && cell.piece.isWhite !== isWhite) {
-        const piece = cell.piece;
-        // Verify if this piece can attack any of the target squares
-        for (const target of squares) {
-          if (
-            isValidMove(
-              piece,
-              r,
-              c,
-              target.row,
-              target.col,
-              board,
-              null,
-              true, // Ignore king safety
-              true
-            )
-          ) {
-            return true; // One of the squares is under attack
-          }
-        }
-      }
-    }
-  }
-  return false; // None of the squares is under attack
-}
 
-export function isSquareUnderAttack(
-  row: number,
-  col: number,
-  isWhite: boolean,
-  board: (Cell | null)[][]
-): boolean {
-  return areSquaresUnderAttack([{ row, col }], isWhite, board);
-}
 
 export default isValidKingMove;
